@@ -1,0 +1,17 @@
+[package]
+name = "lich"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap.version = "4.5.31"
+clap.default-features = false
+clap.features = ["std", "derive"]
+
+minijinja.version = "2.8.0"
+
+serde.version = "1.0.218"
+serde.default-features = false
+serde.features = ["derive"]
+
+toml.version = "0.8.20"
