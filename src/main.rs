@@ -33,14 +33,14 @@ macro_rules! builtin_templates {
 
 static TEMPLATES: &[(&str, &str)] = &builtin_templates![("md.report", "report.md")];
 
-fn validate_binary(binary_path: &str) -> Result<PathBuf, String> {
+fn validate_binary(binary_path: &str) -> Result<PathBuf, &'static str> {
     let binary_path = binary_path
         .parse::<PathBuf>()
         .map_err(|_| "Invalid binary path. Insert a path to the binary.")?;
 
     // Binary path must not be a directory.
     if binary_path.is_dir() {
-        return Err("The binary path must not be a directory. Insert a path to the binary.".into());
+        return Err("The binary path must not be a directory. Insert a path to the binary.");
     }
 
     Ok(binary_path)
@@ -51,13 +51,17 @@ fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, Stri
         .parse::<PathBuf>()
         .map_err(|_| "Invalid configuration path. Insert a path to the `lich.toml` file.")?;
 
-    // Configuration file path must be a file, not a directory.
+    // Configuration file must be present in the passed directory.
     if configuration_path.is_dir() {
-        return Err("The configuration path must not be a directory. Insert a path to the configuration file.".into());
+        match configuration_path.join("lich.toml").try_exists() {
+            Ok(false) => return Err("The configuration path is a directory, but it does not contain any `lich.toml` file.".into()),
+            Err(e) => return Err(format!("Error checking the configuration path: {e}")),
+            _  => {}
+        }
     }
 
     // Configuration file must be called `lich.toml`.
-    if !configuration_path.ends_with("lich.toml") {
+    if configuration_path.is_file() && !configuration_path.ends_with("lich.toml") {
         return Err(
             "The configuration file must be called `lich.toml`. Rename the file accordingly."
                 .into(),
