@@ -5,7 +5,7 @@ use minijinja::{context, Environment};
 
 use serde::Deserialize;
 
-use crate::ToolResult;
+use crate::tools::ToolResult;
 
 #[derive(Default, Deserialize)]
 pub(crate) enum ReportFormat {
@@ -31,7 +31,7 @@ impl Output {
         }
     }
 
-    pub(crate) fn run(
+    pub(crate) fn generate(
         self,
         environment: &Environment,
         vulnerability_tools: &[ToolResult],

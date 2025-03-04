@@ -1,8 +1,6 @@
-mod configuration;
+mod configurator;
 mod output;
-mod powerstat;
-mod powertop;
-mod valgrind;
+mod tools;
 
 use std::path::PathBuf;
 
@@ -10,13 +8,9 @@ use clap::Parser;
 
 use minijinja::Environment;
 
-use serde::Serialize;
-
-use crate::configuration::Configuration;
+use crate::configurator::Configurator;
 use crate::output::Output;
-/*use crate::powerstat::PowerStat;
-use crate::powertop::PowerTop;
-use crate::valgrind::Valgrind;*/
+use crate::tools::{Powerstat, Powertop, Valgrind};
 
 macro_rules! builtin_templates {
     ($(($name:expr, $template:expr)),+) => {
@@ -75,18 +69,11 @@ fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, Stri
 #[clap(author, version, about)]
 struct Args {
     /// The input binary path.
-    #[clap(short, long, value_hint = clap::ValueHint::FilePath, value_parser = validate_binary)]
+    #[clap(short, long = "binary", value_hint = clap::ValueHint::FilePath, value_parser = validate_binary)]
     binary_path: PathBuf,
     /// The configuration file path.
-    #[clap(short, long, value_hint = clap::ValueHint::FilePath, value_parser = validate_configuration_file)]
+    #[clap(short, long = "configuration", value_hint = clap::ValueHint::FilePath, value_parser = validate_configuration_file)]
     configuration_path: PathBuf,
-}
-
-#[derive(Serialize)]
-struct ToolResult {
-    header: String,
-    body: String,
-    result: String,
 }
 
 fn main() {
@@ -96,7 +83,7 @@ fn main() {
     // Read configuration file.
     //
     // The configuration file is mandatory.
-    let config = Configuration::read(&args.configuration_path);
+    let config = Configurator::read(&args.configuration_path);
 
     let mut environment = Environment::new();
     for (name, src) in TEMPLATES {
@@ -107,19 +94,19 @@ fn main() {
 
     let mut vulnerability_tools = Vec::new();
     if config.is_valgrind_enabled() {
-        //vulnerability_tools.push(Valgrind::result().unwrap());
+        vulnerability_tools.push(Valgrind::run(&config.valgrind));
     }
 
     let mut energy_tools = Vec::new();
     if config.is_powerstat_enabled() {
-        //energy_tools.push(PowerStat::result().unwrap());
+        energy_tools.push(Powerstat::run(&config.powerstat));
     }
 
     if config.is_powertop_enabled() {
-        //energy_tools.push(PowerTop::result().unwrap());
+        energy_tools.push(Powertop::run(&config.powertop));
     }
 
-    Output::new(config.format, config.report_path).run(
+    Output::new(config.format, config.report_path).generate(
         &environment,
         &vulnerability_tools,
         &energy_tools,
