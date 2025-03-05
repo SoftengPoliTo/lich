@@ -8,7 +8,6 @@ pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
 use std::ffi::OsStr;
 use std::io::Error;
-use std::path::Path;
 use std::process::{Command, Output};
 
 use serde::Serialize;
@@ -30,10 +29,33 @@ fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
     Command::new(tool_name).arg("-v").output()
 }
 
-fn run_tool<T: Args>(
+fn create_tool_output(command_ref: &mut Command) -> Output {
+    println!("Complete command: {:?}", command_ref.get_program());
+    println!(
+        "Args: {:?}",
+        command_ref.get_args().collect::<Vec<&OsStr>>()
+    );
+
+    command_ref.output().unwrap()
+}
+
+fn sudo_run_tool_with_input<T: Args, S: AsRef<OsStr>>(
     tool_name: &str,
     tool_config: &T,
-    binary_path: &Path,
+    binary_input: S,
+) -> Output {
+    create_tool_output(
+        Command::new("sudo")
+            .arg(tool_name)
+            .args(tool_config.args())
+            .arg(binary_input),
+    )
+}
+
+fn run_tool<T: Args, S: AsRef<OsStr>>(
+    tool_name: &str,
+    tool_config: &T,
+    binary_path: S,
     binary_config: &BinaryConfig,
 ) -> Output {
     let mut command = Command::new(if binary_config.timeout > 0 {
@@ -55,13 +77,7 @@ fn run_tool<T: Args>(
         .arg(binary_path)
         .args(binary_config.args());
 
-    println!("Complete command: {:?}", command_ref.get_program());
-    println!(
-        "Args: {:?}",
-        command_ref.get_args().collect::<Vec<&OsStr>>()
-    );
-
-    command_ref.output().unwrap()
+    create_tool_output(command_ref)
 }
 
 fn create_body(message: Vec<u8>) -> String {
