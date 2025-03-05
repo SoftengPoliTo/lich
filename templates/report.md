@@ -14,11 +14,11 @@ to a specific subsection according to the tool category.
 
 {{ tool.body }}
 
-{%- endfor -%}
+{% endfor %}
 
 {%- endif -%}
 
-{% if energy_tools | length != 0 -%}
+{%- if energy_tools | length != 0 -%}
 
 ## Energy
 
@@ -28,6 +28,6 @@ to a specific subsection according to the tool category.
 
 {{ tool.body }}
 
-{%- endfor -%}
+{% endfor %}
 
 {%- endif -%}
