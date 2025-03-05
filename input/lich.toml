@@ -1,8 +1,25 @@
+# Binary path.
+#
+# It must be an existing path to a file. Every other kind of path is rejected.
 binary-path = "./input/light-firmware-debug"
+# Report path.
+#
+# It must be a path to a file or a directory. In the second case, a default
+# name is added.
 report-path = "./report.md"
 
+# All options for the binary to be evaluated.
 [binary]
+# Binary input arguments.
 args = ["--hostname", "arco", "--domain", "arco"]
+# A timeout for running the binary. If the value is 0, the timeout is disabled.
+# The base measurement unit is second.
+timeout = 60
 
+# Optional valgrind options.
 [valgrind]
 args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
+
+# Optional powertop options.
+[powertop]
+args = ["--time=10"]
