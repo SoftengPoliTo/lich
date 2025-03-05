@@ -2,4 +2,4 @@ binary-path = "./input/light-firmware-debug"
 report-path = "./report.md"
 
 [binary]
-args = ["--hostname arco --domain arco"]
+args = ["--hostname", "arco", "--domain", "arco"]
