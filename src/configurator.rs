@@ -15,6 +15,7 @@ pub(crate) fn always_true() -> bool {
 // `[binary]` section options.
 #[derive(Default, Deserialize)]
 pub(crate) struct BinaryConfig {
+    #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
 }
 
