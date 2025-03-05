@@ -12,6 +12,8 @@ use std::process::{Command, Output};
 
 use serde::Serialize;
 
+use crate::configurator::BinaryConfig;
+
 #[derive(Serialize)]
 pub(crate) struct ToolResult {
     header: &'static str,
@@ -27,18 +29,59 @@ fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
     Command::new(tool_name).arg("-v").output()
 }
 
-fn run_tool<T: Args, K: Args>(
+fn run_tool_with_timeout(
     tool_name: &str,
-    config: &T,
+    tool_arguments: &[String],
     binary_path: &Path,
-    binary_config: &K,
+    binary_arguments: &[String],
+    timeout: u16,
 ) -> Output {
-    Command::new(tool_name)
-        .args(config.args())
+    Command::new("timeout")
+        .arg(format!("{timeout}s"))
+        .arg(tool_name)
+        .args(tool_arguments)
         .arg(binary_path)
-        .args(binary_config.args())
+        .args(binary_arguments)
         .output()
         .unwrap()
+}
+
+fn run_tool_only(
+    tool_name: &str,
+    tool_arguments: &[String],
+    binary_path: &Path,
+    binary_arguments: &[String],
+) -> Output {
+    Command::new(tool_name)
+        .args(tool_arguments)
+        .arg(binary_path)
+        .args(binary_arguments)
+        .output()
+        .unwrap()
+}
+
+fn run_tool<T: Args>(
+    tool_name: &str,
+    tool_config: &T,
+    binary_path: &Path,
+    binary_config: &BinaryConfig,
+) -> Output {
+    if binary_config.timeout > 0 {
+        run_tool_with_timeout(
+            tool_name,
+            tool_config.args(),
+            binary_path,
+            binary_config.args(),
+            binary_config.timeout,
+        )
+    } else {
+        run_tool_only(
+            tool_name,
+            tool_config.args(),
+            binary_path,
+            binary_config.args(),
+        )
+    }
 }
 
 fn create_body(message: Vec<u8>) -> String {

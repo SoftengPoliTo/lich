@@ -17,6 +17,8 @@ pub(crate) fn always_true() -> bool {
 pub(crate) struct BinaryConfig {
     #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
+    #[serde(default)]
+    pub(crate) timeout: u16,
 }
 
 impl Args for BinaryConfig {
