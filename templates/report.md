@@ -1,15 +1,14 @@
 # Final Report
 
 This report presents the results of all those tools which have not been
-voluntarily disabled in the `lich.toml` configuration file. Each result is
-assigned to a specific subsection depending on the category associated with its
-tool.
+disabled in the `lich.toml` configuration file. Each result has been assigned
+to a specific subsection according to the tool category.
 
-{% if vulnerability.tools | length != 0 %}
+{% if vulnerability_tools | length != 0 -%}
 
 ## Vulnerability
 
-{% for tool in vulnerability_tools %}
+{% for tool in vulnerability_tools -%}
 
 ### {{ tool.header }}
 
@@ -17,11 +16,11 @@ tool.
 
 **Final result**: {{ tool.result}}
 
-{% endfor %}
+{%- endfor -%}
 
-{% endif %}
+{%- endif -%}
 
-{% if energy.tools | length != 0 %}
+{% if energy_tools | length != 0 %}
 
 ## Energy
 
