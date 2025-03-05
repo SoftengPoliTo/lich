@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::BinaryConfig;
 
-use super::{format_command_output, run_command, Args, ToolResult};
+use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
 
 // `[valgrind]` section options.
 #[derive(Deserialize)]
@@ -40,9 +40,9 @@ impl Valgrind {
         let valgrind_output = run_command("valgrind", valgrind_config, binary_path, binary_config);
 
         let (body, result) = if valgrind_output.status.success() {
-            format_command_output(valgrind_output.stdout)
+            stdout_output(valgrind_output.stdout)
         } else {
-            format_command_output(valgrind_output.stderr)
+            stderr_output(valgrind_output.stderr)
         };
 
         ToolResult {

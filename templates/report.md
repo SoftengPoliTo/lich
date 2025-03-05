@@ -10,28 +10,24 @@ to a specific subsection according to the tool category.
 
 {% for tool in vulnerability_tools -%}
 
-### {{ tool.header }}
+### {{ tool.header }} {{ tool.result}}
 
 {{ tool.body }}
-
-**Final result**: {{ tool.result}}
 
 {%- endfor -%}
 
 {%- endif -%}
 
-{% if energy_tools | length != 0 %}
+{% if energy_tools | length != 0 -%}
 
 ## Energy
 
-{% for tool in energy_tools %}
+{% for tool in energy_tools -%}
 
-## {{ tool.header }}
+## {{ tool.header }} {{ tool.result}}
 
 {{ tool.body }}
 
-**Final result**: {{ tool.result}}
+{%- endfor -%}
 
-{% endfor %}
-
-{% endif %}
+{%- endif -%}

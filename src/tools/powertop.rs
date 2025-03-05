@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::BinaryConfig;
 
-use super::{format_command_output, run_command, Args, ToolResult};
+use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
 
 // `[powertop]` section options.
 #[derive(Deserialize)]
@@ -39,9 +39,9 @@ impl Powertop {
         let powertop_output = run_command("powertop", powertop_config, binary_path, binary_config);
 
         let (body, result) = if powertop_output.status.success() {
-            format_command_output(powertop_output.stdout)
+            stdout_output(powertop_output.stdout)
         } else {
-            format_command_output(powertop_output.stderr)
+            stderr_output(powertop_output.stderr)
         };
 
         ToolResult {

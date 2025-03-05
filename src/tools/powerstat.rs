@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::BinaryConfig;
 
-use super::{format_command_output, run_command, Args, ToolResult};
+use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
 
 // `[PowerStat]` section options.
 #[derive(Deserialize)]
@@ -40,9 +40,9 @@ impl Powerstat {
             run_command("powerstat", powerstat_config, binary_path, binary_config);
 
         let (body, result) = if powerstat_output.status.success() {
-            format_command_output(powerstat_output.stdout)
+            stdout_output(powerstat_output.stdout)
         } else {
-            format_command_output(powerstat_output.stderr)
+            stderr_output(powerstat_output.stderr)
         };
 
         ToolResult {

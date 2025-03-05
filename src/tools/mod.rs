@@ -36,13 +36,23 @@ fn run_command<T: Args, K: Args>(
         .unwrap()
 }
 
-fn format_command_output(output: Vec<u8>) -> (String, &'static str) {
-    let str_output = String::from_utf8(output).unwrap();
-    let body = format!(
+fn create_body(message: Vec<u8>) -> String {
+    let str_output = String::from_utf8(message).unwrap();
+    format!(
         "```
 {str_output}
 ```"
-    );
-    let result = "&#x1F600;";
+    )
+}
+
+fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
+    let body = create_body(message);
+    let result = "[Success &#x1F600;]";
+    (body, result)
+}
+
+fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
+    let body = create_body(message);
+    let result = "[Error &#x1F915;]";
     (body, result)
 }
