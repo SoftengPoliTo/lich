@@ -8,13 +8,13 @@ use toml::from_str;
 use crate::output::ReportFormat;
 use crate::tools::{Args, PowerstatConfig, PowertopConfig, ValgrindConfig};
 
-// `[input]` section options.
+// `[binary]` section options.
 #[derive(Default, Deserialize)]
-pub(crate) struct InputConfig {
+pub(crate) struct BinaryConfig {
     pub(crate) args: Vec<String>,
 }
 
-impl Args for InputConfig {
+impl Args for BinaryConfig {
     fn args(&self) -> &[String] {
         &self.args
     }
@@ -23,12 +23,14 @@ impl Args for InputConfig {
 // Accepted toml file structure.
 #[derive(Deserialize)]
 pub(crate) struct Configurator {
+    #[serde(rename = "binary-path")]
+    pub(crate) binary_path: PathBuf,
     #[serde(rename = "report-path")]
     pub(crate) report_path: PathBuf,
     #[serde(default)]
     pub(crate) format: ReportFormat,
     #[serde(default)]
-    pub(crate) input: InputConfig,
+    pub(crate) binary: BinaryConfig,
     #[serde(default)]
     pub(crate) valgrind: ValgrindConfig,
     #[serde(default)]
@@ -41,6 +43,12 @@ impl Configurator {
     pub(crate) fn read(configuration_path: &Path) -> Self {
         let contents = read_to_string(configuration_path).unwrap();
         let configuration: Self = from_str(&contents).unwrap();
+
+        // Binary path must not be a directory.
+        assert!(
+            !configuration.binary_path.is_dir(),
+            "The binary path must not be a directory. Insert a path to the binary."
+        );
 
         configuration
     }

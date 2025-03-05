@@ -27,19 +27,6 @@ macro_rules! builtin_templates {
 
 static TEMPLATES: &[(&str, &str)] = &builtin_templates![("md.report", "report.md")];
 
-fn validate_binary(binary_path: &str) -> Result<PathBuf, &'static str> {
-    let binary_path = binary_path
-        .parse::<PathBuf>()
-        .map_err(|_| "Invalid binary path. Insert a path to the binary.")?;
-
-    // Binary path must not be a directory.
-    if binary_path.is_dir() {
-        return Err("The binary path must not be a directory. Insert a path to the binary.");
-    }
-
-    Ok(binary_path)
-}
-
 fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, String> {
     let configuration_path = configuration_path
         .parse::<PathBuf>()
@@ -68,9 +55,6 @@ fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, Stri
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
 struct Args {
-    /// The input binary path.
-    #[clap(short, long = "binary", value_hint = clap::ValueHint::FilePath, value_parser = validate_binary)]
-    binary_path: PathBuf,
     /// The configuration file path.
     #[clap(short, long = "configuration", value_hint = clap::ValueHint::FilePath, value_parser = validate_configuration_file)]
     configuration_path: PathBuf,
@@ -96,8 +80,8 @@ fn main() {
     if config.is_valgrind_enabled() {
         vulnerability_tools.push(Valgrind::run(
             &config.valgrind,
-            &args.binary_path,
-            &config.input,
+            &config.binary_path,
+            &config.binary,
         ));
     }
 
@@ -105,16 +89,16 @@ fn main() {
     if config.is_powerstat_enabled() {
         energy_tools.push(Powerstat::run(
             &config.powerstat,
-            &args.binary_path,
-            &config.input,
+            &config.binary_path,
+            &config.binary,
         ));
     }
 
     if config.is_powertop_enabled() {
         energy_tools.push(Powertop::run(
             &config.powertop,
-            &args.binary_path,
-            &config.input,
+            &config.binary_path,
+            &config.binary,
         ));
     }
 

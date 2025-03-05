@@ -2,7 +2,7 @@ use std::path::Path;
 
 use serde::Deserialize;
 
-use crate::configurator::InputConfig;
+use crate::configurator::BinaryConfig;
 
 use super::{format_command_output, run_command, Args, ToolResult};
 
@@ -34,10 +34,10 @@ impl Powerstat {
     pub(crate) fn run(
         powerstat_config: &PowerstatConfig,
         binary_path: &Path,
-        input_config: &InputConfig,
+        binary_config: &BinaryConfig,
     ) -> ToolResult {
         let powerstat_output =
-            run_command("powerstat", powerstat_config, binary_path, input_config);
+            run_command("powerstat", powerstat_config, binary_path, binary_config);
 
         let (body, result) = if powerstat_output.status.success() {
             format_command_output(powerstat_output.stdout)

@@ -1,4 +1,5 @@
+binary-path = "./light-firmware-debug"
 report-path = "./report.md"
 
-[input]
+[binary]
 args = ["--hostname arco"]
