@@ -34,22 +34,21 @@ fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, Stri
 
     // Configuration file must be present in the passed directory.
     if configuration_path.is_dir() {
-        match configuration_path.join("lich.toml").try_exists() {
-            Ok(false) => return Err("The configuration path is a directory, but it does not contain any `lich.toml` file.".into()),
-            Err(e) => return Err(format!("Error checking the configuration path: {e}")),
-            _  => {}
+        let configuration_path = configuration_path.join("lich.toml");
+        match configuration_path.try_exists() {
+            Ok(false) => Err("The configuration path is a directory, but it does not contain any `lich.toml` file.".into()),
+            Err(e) => Err(format!("Error checking the configuration path: {e}")),
+            _  => Ok(configuration_path)
         }
-    }
-
-    // Configuration file must be called `lich.toml`.
-    if configuration_path.is_file() && !configuration_path.ends_with("lich.toml") {
-        return Err(
+    } else if configuration_path.is_file() && !configuration_path.ends_with("lich.toml") {
+        // Configuration file must be called `lich.toml`.
+        Err(
             "The configuration file must be called `lich.toml`. Rename the file accordingly."
                 .into(),
-        );
+        )
+    } else {
+        Ok(configuration_path)
     }
-
-    Ok(configuration_path)
 }
 
 #[derive(Parser, Debug)]
