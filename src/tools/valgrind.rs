@@ -4,7 +4,10 @@ use serde::Deserialize;
 
 use crate::configurator::{always_true, BinaryConfig};
 
-use super::{check_tool_existence, run_tool, stderr_output, stdout_output, Args, ToolResult};
+use super::{
+    check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output, Args,
+    ToolResult,
+};
 
 // `[valgrind]` section options.
 #[derive(Deserialize)]
@@ -13,6 +16,8 @@ pub(crate) struct ValgrindConfig {
     pub(crate) enabled: bool,
     #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
+    #[serde(default)]
+    pub(crate) timeout: u16,
 }
 
 impl Default for ValgrindConfig {
@@ -20,6 +25,7 @@ impl Default for ValgrindConfig {
         Self {
             enabled: true,
             args: Vec::new(),
+            timeout: 0,
         }
     }
 }
@@ -42,7 +48,17 @@ impl Valgrind {
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
-        let valgrind_output = run_tool("valgrind", valgrind_config, binary_path, binary_config);
+        let valgrind_output = if valgrind_config.timeout > 0 {
+            run_tool_with_timeout(
+                "valgrind",
+                valgrind_config,
+                binary_path,
+                binary_config,
+                valgrind_config.timeout,
+            )
+        } else {
+            run_tool("valgrind", valgrind_config, binary_path, binary_config)
+        };
 
         let (body, result) = if valgrind_output.status.success() {
             stdout_output(valgrind_output.stdout)

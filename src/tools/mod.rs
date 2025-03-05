@@ -58,26 +58,29 @@ fn run_tool<T: Args, S: AsRef<OsStr>>(
     binary_path: S,
     binary_config: &BinaryConfig,
 ) -> Output {
-    let mut command = Command::new(if binary_config.timeout > 0 {
-        "timeout"
-    } else {
-        tool_name
-    });
+    create_tool_output(
+        Command::new(tool_name)
+            .args(tool_config.args())
+            .arg(binary_path)
+            .args(binary_config.args()),
+    )
+}
 
-    let command_ref = if binary_config.timeout > 0 {
-        command
-            .arg(format!("{}s", binary_config.timeout))
+fn run_tool_with_timeout<T: Args, S: AsRef<OsStr>>(
+    tool_name: &str,
+    tool_config: &T,
+    binary_path: S,
+    binary_config: &BinaryConfig,
+    timeout: u16,
+) -> Output {
+    create_tool_output(
+        Command::new("timeout")
+            .arg(format!("{timeout}s"))
             .arg(tool_name)
-    } else {
-        &mut command
-    };
-
-    let command_ref = command_ref
-        .args(tool_config.args())
-        .arg(binary_path)
-        .args(binary_config.args());
-
-    create_tool_output(command_ref)
+            .args(tool_config.args())
+            .arg(binary_path)
+            .args(binary_config.args()),
+    )
 }
 
 fn create_body(message: Vec<u8>) -> String {
