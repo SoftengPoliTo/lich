@@ -27,7 +27,7 @@ enabled = false
 # Take a sample each second and run for 60 seconds (1 minute). Use Intel RAPL
 # to extract energy consumption data and forcibly ignore zero power rate stats
 # from the battery. The 60s is the minimum allowed duration.
-args = ["-zR", "1", "60" "--"]
+args = ["-zR", "1", "60", "--"]
 
 # Optional powertop options.
 [powertop]
