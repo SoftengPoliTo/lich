@@ -26,12 +26,12 @@ fn run_command<T: Args, K: Args>(
     command_name: &str,
     config: &T,
     binary_path: &Path,
-    input_config: &K,
+    binary_config: &K,
 ) -> Output {
     Command::new(command_name)
         .args(config.args())
         .arg(binary_path)
-        .args(input_config.args())
+        .args(binary_config.args())
         .output()
         .unwrap()
 }
