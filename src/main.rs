@@ -77,6 +77,8 @@ fn main() {
 
     let mut vulnerability_tools = Vec::new();
     if config.is_valgrind_enabled() {
+        Valgrind::check_existence();
+
         vulnerability_tools.push(Valgrind::run(
             &config.valgrind,
             &config.binary_path,
@@ -86,6 +88,8 @@ fn main() {
 
     let mut energy_tools = Vec::new();
     if config.is_powerstat_enabled() {
+        Powerstat::check_existence();
+
         energy_tools.push(Powerstat::run(
             &config.powerstat,
             &config.binary_path,
@@ -94,6 +98,8 @@ fn main() {
     }
 
     if config.is_powertop_enabled() {
+        Powertop::check_existence();
+
         energy_tools.push(Powertop::run(
             &config.powertop,
             &config.binary_path,

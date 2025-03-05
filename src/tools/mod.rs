@@ -6,6 +6,7 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
+use std::io::Error;
 use std::path::Path;
 use std::process::{Command, Output};
 
@@ -22,13 +23,17 @@ pub(crate) trait Args {
     fn args(&self) -> &[String];
 }
 
-fn run_command<T: Args, K: Args>(
-    command_name: &str,
+fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
+    Command::new(tool_name).arg("-v").output()
+}
+
+fn run_tool<T: Args, K: Args>(
+    tool_name: &str,
     config: &T,
     binary_path: &Path,
     binary_config: &K,
 ) -> Output {
-    Command::new(command_name)
+    Command::new(tool_name)
         .args(config.args())
         .arg(binary_path)
         .args(binary_config.args())

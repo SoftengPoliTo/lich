@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::{always_true, BinaryConfig};
 
-use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
+use super::{check_tool_existence, run_tool, stderr_output, stdout_output, Args, ToolResult};
 
 // `[PowerStat]` section options.
 #[derive(Deserialize)]
@@ -33,13 +33,16 @@ impl Args for PowerstatConfig {
 pub(crate) struct Powerstat;
 
 impl Powerstat {
+    pub(crate) fn check_existence() {
+        check_tool_existence("powerstat").expect("powerstat cannot be found on the system.");
+    }
+
     pub(crate) fn run(
         powerstat_config: &PowerstatConfig,
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
-        let powerstat_output =
-            run_command("powerstat", powerstat_config, binary_path, binary_config);
+        let powerstat_output = run_tool("powerstat", powerstat_config, binary_path, binary_config);
 
         let (body, result) = if powerstat_output.status.success() {
             stdout_output(powerstat_output.stdout)

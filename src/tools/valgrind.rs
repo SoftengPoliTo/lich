@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::{always_true, BinaryConfig};
 
-use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
+use super::{check_tool_existence, run_tool, stderr_output, stdout_output, Args, ToolResult};
 
 // `[valgrind]` section options.
 #[derive(Deserialize)]
@@ -33,13 +33,16 @@ impl Args for ValgrindConfig {
 pub(crate) struct Valgrind;
 
 impl Valgrind {
+    pub(crate) fn check_existence() {
+        check_tool_existence("valgrind").expect("Valgrind cannot be found on the system.");
+    }
+
     pub(crate) fn run(
         valgrind_config: &ValgrindConfig,
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
-        // Run valgrind command.
-        let valgrind_output = run_command("valgrind", valgrind_config, binary_path, binary_config);
+        let valgrind_output = run_tool("valgrind", valgrind_config, binary_path, binary_config);
 
         let (body, result) = if valgrind_output.status.success() {
             stdout_output(valgrind_output.stdout)

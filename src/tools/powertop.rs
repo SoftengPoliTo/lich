@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::configurator::{always_true, BinaryConfig};
 
-use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
+use super::{check_tool_existence, run_tool, stderr_output, stdout_output, Args, ToolResult};
 
 // `[powertop]` section options.
 #[derive(Deserialize)]
@@ -33,12 +33,16 @@ impl Args for PowertopConfig {
 pub(crate) struct Powertop;
 
 impl Powertop {
+    pub(crate) fn check_existence() {
+        check_tool_existence("powertop").expect("powertop cannot be found on the system.");
+    }
+
     pub(crate) fn run(
         powertop_config: &PowertopConfig,
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
-        let powertop_output = run_command("powertop", powertop_config, binary_path, binary_config);
+        let powertop_output = run_tool("powertop", powertop_config, binary_path, binary_config);
 
         let (body, result) = if powertop_output.status.success() {
             stdout_output(powertop_output.stdout)
