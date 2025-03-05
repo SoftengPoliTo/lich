@@ -2,14 +2,16 @@ use std::path::Path;
 
 use serde::Deserialize;
 
-use crate::configurator::BinaryConfig;
+use crate::configurator::{always_true, BinaryConfig};
 
 use super::{run_command, stderr_output, stdout_output, Args, ToolResult};
 
 // `[PowerStat]` section options.
 #[derive(Deserialize)]
 pub(crate) struct PowerstatConfig {
+    #[serde(default = "always_true")]
     pub(crate) enabled: bool,
+    #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
 }
 

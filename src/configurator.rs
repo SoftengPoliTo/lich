@@ -8,6 +8,10 @@ use toml::from_str;
 use crate::output::ReportFormat;
 use crate::tools::{Args, PowerstatConfig, PowertopConfig, ValgrindConfig};
 
+pub(crate) fn always_true() -> bool {
+    true
+}
+
 // `[binary]` section options.
 #[derive(Default, Deserialize)]
 pub(crate) struct BinaryConfig {
