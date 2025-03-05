@@ -3,3 +3,6 @@ report-path = "./report.md"
 
 [binary]
 args = ["--hostname", "arco", "--domain", "arco"]
+
+[valgrind]
+args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
