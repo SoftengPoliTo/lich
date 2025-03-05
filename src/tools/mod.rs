@@ -6,6 +6,7 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
+use std::ffi::OsStr;
 use std::io::Error;
 use std::path::Path;
 use std::process::{Command, Output};
@@ -29,59 +30,38 @@ fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
     Command::new(tool_name).arg("-v").output()
 }
 
-fn run_tool_with_timeout(
-    tool_name: &str,
-    tool_arguments: &[String],
-    binary_path: &Path,
-    binary_arguments: &[String],
-    timeout: u16,
-) -> Output {
-    Command::new("timeout")
-        .arg(format!("{timeout}s"))
-        .arg(tool_name)
-        .args(tool_arguments)
-        .arg(binary_path)
-        .args(binary_arguments)
-        .output()
-        .unwrap()
-}
-
-fn run_tool_only(
-    tool_name: &str,
-    tool_arguments: &[String],
-    binary_path: &Path,
-    binary_arguments: &[String],
-) -> Output {
-    Command::new(tool_name)
-        .args(tool_arguments)
-        .arg(binary_path)
-        .args(binary_arguments)
-        .output()
-        .unwrap()
-}
-
 fn run_tool<T: Args>(
     tool_name: &str,
     tool_config: &T,
     binary_path: &Path,
     binary_config: &BinaryConfig,
 ) -> Output {
-    if binary_config.timeout > 0 {
-        run_tool_with_timeout(
-            tool_name,
-            tool_config.args(),
-            binary_path,
-            binary_config.args(),
-            binary_config.timeout,
-        )
+    let mut command = Command::new(if binary_config.timeout > 0 {
+        "timeout"
     } else {
-        run_tool_only(
-            tool_name,
-            tool_config.args(),
-            binary_path,
-            binary_config.args(),
-        )
-    }
+        tool_name
+    });
+
+    let command_ref = if binary_config.timeout > 0 {
+        command
+            .arg(format!("{}s", binary_config.timeout))
+            .arg(tool_name)
+    } else {
+        &mut command
+    };
+
+    let command_ref = command_ref
+        .args(tool_config.args())
+        .arg(binary_path)
+        .args(binary_config.args());
+
+    println!("Complete command: {:?}", command_ref.get_program());
+    println!(
+        "Args: {:?}",
+        command_ref.get_args().collect::<Vec<&OsStr>>()
+    );
+
+    command_ref.output().unwrap()
 }
 
 fn create_body(message: Vec<u8>) -> String {
