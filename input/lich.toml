@@ -7,6 +7,8 @@ binary-path = "./input/light-firmware-debug"
 # It can be a file or a directory path. In the second case, the `lich.ext` file
 # will be created.
 report-path = "./report.md"
+# Set root of the system in use.
+root = "sudo"
 
 # All options for the binary to be evaluated.
 [binary]

@@ -5,7 +5,8 @@ use serde::Deserialize;
 use crate::configurator::{always_true, BinaryConfig};
 
 use super::{
-    check_tool_existence, stderr_output, stdout_output, sudo_run_tool_with_input, Args, ToolResult,
+    check_tool_existence, run_tool_with_input, stderr_output, stdout_output,
+    sudo_run_tool_with_input, Args, ToolResult,
 };
 
 // `[powertop]` section options.
@@ -40,12 +41,18 @@ impl Powertop {
     }
 
     pub(crate) fn run(
+        root: &str,
         powertop_config: &PowertopConfig,
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
         let binary_input = Self::create_binary_input(binary_path, binary_config.args());
-        let powertop_output = sudo_run_tool_with_input("powertop", powertop_config, binary_input);
+
+        let powertop_output = if root.is_empty() {
+            run_tool_with_input("powertop", powertop_config, binary_input)
+        } else {
+            sudo_run_tool_with_input("powertop", powertop_config, binary_input, root)
+        };
 
         let (body, result) = if powertop_output.status.success() {
             stdout_output(powertop_output.stdout)

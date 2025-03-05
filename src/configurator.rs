@@ -33,6 +33,8 @@ pub(crate) struct Configurator {
     #[serde(rename = "report-path")]
     pub(crate) report_path: PathBuf,
     #[serde(default)]
+    pub(crate) root: String,
+    #[serde(default)]
     pub(crate) format: ReportFormat,
     #[serde(default)]
     pub(crate) binary: BinaryConfig,

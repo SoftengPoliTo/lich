@@ -4,7 +4,9 @@ use serde::Deserialize;
 
 use crate::configurator::{always_true, BinaryConfig};
 
-use super::{check_tool_existence, run_tool, stderr_output, stdout_output, Args, ToolResult};
+use super::{
+    check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolResult,
+};
 
 // `[PowerStat]` section options.
 #[derive(Deserialize)]
@@ -38,11 +40,22 @@ impl Powerstat {
     }
 
     pub(crate) fn run(
+        root: &str,
         powerstat_config: &PowerstatConfig,
         binary_path: &Path,
         binary_config: &BinaryConfig,
     ) -> ToolResult {
-        let powerstat_output = run_tool("powerstat", powerstat_config, binary_path, binary_config);
+        let powerstat_output = if root.is_empty() {
+            run_tool("powerstat", powerstat_config, binary_path, binary_config)
+        } else {
+            sudo_run_tool(
+                "powerstat",
+                powerstat_config,
+                binary_path,
+                binary_config,
+                root,
+            )
+        };
 
         let (body, result) = if powerstat_output.status.success() {
             stdout_output(powerstat_output.stdout)

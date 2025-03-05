@@ -43,12 +43,41 @@ fn sudo_run_tool_with_input<T: Args, S: AsRef<OsStr>>(
     tool_name: &str,
     tool_config: &T,
     binary_input: S,
+    root: &str,
 ) -> Output {
     create_tool_output(
-        Command::new("sudo")
+        Command::new(root)
             .arg(tool_name)
             .args(tool_config.args())
             .arg(binary_input),
+    )
+}
+
+fn run_tool_with_input<T: Args, S: AsRef<OsStr>>(
+    tool_name: &str,
+    tool_config: &T,
+    binary_input: S,
+) -> Output {
+    create_tool_output(
+        Command::new(tool_name)
+            .args(tool_config.args())
+            .arg(binary_input),
+    )
+}
+
+fn sudo_run_tool<T: Args, S: AsRef<OsStr>>(
+    tool_name: &str,
+    tool_config: &T,
+    binary_path: S,
+    binary_config: &BinaryConfig,
+    root: &str,
+) -> Output {
+    create_tool_output(
+        Command::new(root)
+            .arg(tool_name)
+            .args(tool_config.args())
+            .arg(binary_path)
+            .args(binary_config.args()),
     )
 }
 

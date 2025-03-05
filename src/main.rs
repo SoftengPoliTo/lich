@@ -91,6 +91,7 @@ fn main() {
         Powerstat::check_existence();
 
         energy_tools.push(Powerstat::run(
+            &config.root,
             &config.powerstat,
             &config.binary_path,
             &config.binary,
@@ -101,6 +102,7 @@ fn main() {
         Powertop::check_existence();
 
         energy_tools.push(Powertop::run(
+            &config.root,
             &config.powertop,
             &config.binary_path,
             &config.binary,
