@@ -1,4 +1,4 @@
-report-path = "./"
+report-path = "./report.md"
 
 [input]
 args = ["--hostname arco"]

@@ -42,11 +42,6 @@ impl Configurator {
         let contents = read_to_string(configuration_path).unwrap();
         let configuration: Self = from_str(&contents).unwrap();
 
-        assert!(
-            !configuration.report_path.is_dir(),
-            "The report path must be a directory!"
-        );
-
         configuration
     }
 
