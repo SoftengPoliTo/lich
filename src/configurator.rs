@@ -51,11 +51,15 @@ impl Configurator {
         let contents = read_to_string(configuration_path).unwrap();
         let configuration: Self = from_str(&contents).unwrap();
 
+        // TODO: If report path is a dir, create the default file `lich.extension`.
+
         // Binary path must not be a directory.
         assert!(
             !configuration.binary_path.is_dir(),
             "The binary path must not be a directory. Insert a path to the binary."
         );
+
+        // TODO: Check whether binary path exists.
 
         configuration
     }
