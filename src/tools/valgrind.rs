@@ -2,6 +2,8 @@ use std::path::Path;
 
 use serde::Deserialize;
 
+use crate::configurator::InputConfig;
+
 use super::{format_command_output, run_command, Args, ToolResult};
 
 // `[valgrind]` section options.
@@ -29,9 +31,13 @@ impl Args for ValgrindConfig {
 pub(crate) struct Valgrind;
 
 impl Valgrind {
-    pub(crate) fn run(valgrind_config: &ValgrindConfig, binary_path: &Path) -> ToolResult {
+    pub(crate) fn run(
+        valgrind_config: &ValgrindConfig,
+        binary_path: &Path,
+        input_config: &InputConfig,
+    ) -> ToolResult {
         // Run valgrind command.
-        let valgrind_output = run_command("valgrind", valgrind_config, binary_path);
+        let valgrind_output = run_command("valgrind", valgrind_config, binary_path, input_config);
 
         let (body, result) = if valgrind_output.status.success() {
             format_command_output(valgrind_output.stdout)

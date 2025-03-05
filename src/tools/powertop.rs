@@ -2,6 +2,8 @@ use std::path::Path;
 
 use serde::Deserialize;
 
+use crate::configurator::InputConfig;
+
 use super::{format_command_output, run_command, Args, ToolResult};
 
 // `[powertop]` section options.
@@ -29,8 +31,12 @@ impl Args for PowertopConfig {
 pub(crate) struct Powertop;
 
 impl Powertop {
-    pub(crate) fn run(powertop_config: &PowertopConfig, binary_path: &Path) -> ToolResult {
-        let powertop_output = run_command("powertop", powertop_config, binary_path);
+    pub(crate) fn run(
+        powertop_config: &PowertopConfig,
+        binary_path: &Path,
+        input_config: &InputConfig,
+    ) -> ToolResult {
+        let powertop_output = run_command("powertop", powertop_config, binary_path, input_config);
 
         let (body, result) = if powertop_output.status.success() {
             format_command_output(powertop_output.stdout)

@@ -6,14 +6,29 @@ use serde::Deserialize;
 use toml::from_str;
 
 use crate::output::ReportFormat;
-use crate::tools::{PowerstatConfig, PowertopConfig, ValgrindConfig};
+use crate::tools::{Args, PowerstatConfig, PowertopConfig, ValgrindConfig};
+
+// `[input]` section options.
+#[derive(Default, Deserialize)]
+pub(crate) struct InputConfig {
+    pub(crate) args: Vec<String>,
+}
+
+impl Args for InputConfig {
+    fn args(&self) -> &[String] {
+        &self.args
+    }
+}
 
 // Accepted toml file structure.
 #[derive(Deserialize)]
 pub(crate) struct Configurator {
+    #[serde(rename = "report-path")]
     pub(crate) report_path: PathBuf,
     #[serde(default)]
     pub(crate) format: ReportFormat,
+    #[serde(default)]
+    pub(crate) input: InputConfig,
     #[serde(default)]
     pub(crate) valgrind: ValgrindConfig,
     #[serde(default)]
