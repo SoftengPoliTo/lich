@@ -94,16 +94,16 @@ fn main() {
 
     let mut vulnerability_tools = Vec::new();
     if config.is_valgrind_enabled() {
-        vulnerability_tools.push(Valgrind::run(&config.valgrind));
+        vulnerability_tools.push(Valgrind::run(&config.valgrind, &args.binary_path));
     }
 
     let mut energy_tools = Vec::new();
     if config.is_powerstat_enabled() {
-        energy_tools.push(Powerstat::run(&config.powerstat));
+        energy_tools.push(Powerstat::run(&config.powerstat, &args.binary_path));
     }
 
     if config.is_powertop_enabled() {
-        energy_tools.push(Powertop::run(&config.powertop));
+        energy_tools.push(Powertop::run(&config.powertop, &args.binary_path));
     }
 
     Output::new(config.format, config.report_path).generate(

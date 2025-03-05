@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use serde::Deserialize;
 
 use super::{format_command_output, run_command, Args, ToolResult};
@@ -27,8 +29,8 @@ impl Args for PowerstatConfig {
 pub(crate) struct Powerstat;
 
 impl Powerstat {
-    pub(crate) fn run(powerstat_config: &PowerstatConfig) -> ToolResult {
-        let powerstat_output = run_command("powerstat", powerstat_config);
+    pub(crate) fn run(powerstat_config: &PowerstatConfig, binary_path: &Path) -> ToolResult {
+        let powerstat_output = run_command("powerstat", powerstat_config, binary_path);
 
         let (body, result) = if powerstat_output.status.success() {
             format_command_output(powerstat_output.stdout)

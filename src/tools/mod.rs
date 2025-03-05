@@ -6,6 +6,7 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
+use std::path::Path;
 use std::process::{Command, Output};
 
 use serde::Serialize;
@@ -21,9 +22,10 @@ trait Args {
     fn args(&self) -> &[String];
 }
 
-fn run_command<T: Args>(command_name: &str, config: &T) -> Output {
+fn run_command<T: Args>(command_name: &str, config: &T, binary_path: &Path) -> Output {
     Command::new(command_name)
         .args(config.args())
+        .arg(binary_path)
         .output()
         .unwrap()
 }
