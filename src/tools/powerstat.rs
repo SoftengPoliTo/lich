@@ -8,7 +8,7 @@ use super::{
     check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolResult,
 };
 
-// `[PowerStat]` section options.
+// `[powerstat]` section options.
 #[derive(Deserialize)]
 pub(crate) struct PowerstatConfig {
     #[serde(default = "always_true")]
