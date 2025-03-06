@@ -17,8 +17,8 @@ args = ["--hostname", "arco", "--domain", "arco"]
 
 # Optional valgrind arguments.
 [valgrind]
-# Do not run valgrind tool.
-enable = false
+# Run valgrind tool.
+enable = true
 # Valgrind input arguments.
 args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
 # A timeout to stop binary execution. This parameter is useful when a server is
@@ -29,7 +29,7 @@ timeout = 10
 # Optional powerstat arguments.
 [powerstat]
 # Do not run powerstat tool.
-enable = false
+enable = true
 # Powerstat input arguments.
 #
 # Take a sample each second and run for 60 seconds (1 minute). Use Intel RAPL
