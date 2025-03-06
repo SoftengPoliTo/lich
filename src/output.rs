@@ -48,9 +48,9 @@ pub(crate) enum ReportFormat {
 impl ReportFormat {
     pub(crate) const fn ext(&self) -> &'static str {
         if matches!(self, Self::Markdown) {
-            ".md"
+            "md"
         } else {
-            ".html"
+            "html"
         }
     }
 }
