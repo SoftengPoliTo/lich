@@ -36,8 +36,8 @@ fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, Stri
     if configuration_path.is_dir() {
         let configuration_path = configuration_path.join("lich.toml");
         match configuration_path.try_exists() {
-            Ok(false) => Err("The configuration path is a directory, but it does not contain any `lich.toml` file.".into()),
-            Err(e) => Err(format!("Error checking the configuration path: {e}")),
+            Ok(false) => Err("The configuration path is a directory, but it does not contain the `lich.toml` file.".into()),
+            Err(e) => Err(format!("Error checking the configuration path existence: {e}")),
             _  => Ok(configuration_path)
         }
     } else if configuration_path.is_file() && !configuration_path.ends_with("lich.toml") {
