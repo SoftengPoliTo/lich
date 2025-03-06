@@ -10,16 +10,7 @@ use std::ffi::OsStr;
 use std::io::Error;
 use std::process::{Command, Output};
 
-use serde::Serialize;
-
 use crate::configurator::BinaryConfig;
-
-#[derive(Serialize)]
-pub(crate) struct ToolResult {
-    header: &'static str,
-    body: String,
-    result: &'static str,
-}
 
 pub(crate) trait Args {
     fn args(&self) -> &[String];
@@ -112,23 +103,14 @@ fn run_tool_with_timeout<T: Args, S: AsRef<OsStr>>(
     )
 }
 
-fn create_body(message: Vec<u8>) -> String {
-    let str_output = String::from_utf8(message).unwrap();
-    format!(
-        "```
-{str_output}
-```"
-    )
-}
-
 fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
-    let body = create_body(message);
+    let output = String::from_utf8(message).unwrap();
     let result = "[Success &#x1F600;]";
-    (body, result)
+    (output, result)
 }
 
 fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
-    let body = create_body(message);
+    let output = String::from_utf8(message).unwrap();
     let result = "[Error &#x1F915;]";
-    (body, result)
+    (output, result)
 }

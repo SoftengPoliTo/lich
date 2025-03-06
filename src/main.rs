@@ -9,7 +9,7 @@ use clap::Parser;
 use minijinja::Environment;
 
 use crate::configurator::Configurator;
-use crate::output::Output;
+use crate::output::{Output, ToolOutput};
 use crate::tools::{Powerstat, Powertop, Valgrind};
 
 macro_rules! builtin_templates {
@@ -25,7 +25,10 @@ macro_rules! builtin_templates {
     }
 }
 
-static TEMPLATES: &[(&str, &str)] = &builtin_templates![("md.report", "report.md")];
+static TEMPLATES: &[(&str, &str)] = &builtin_templates![
+    ("md.report", "report.md"),
+    ("md.final_report", "final_report.md")
+];
 
 fn validate_configuration_file(configuration_path: &str) -> Result<PathBuf, String> {
     let configuration_path = configuration_path
@@ -59,6 +62,64 @@ struct Args {
     configuration_path: PathBuf,
 }
 
+fn run_vulnerability_tools(config: &Configurator, environment: &Environment) -> Vec<ToolOutput> {
+    let mut vulnerability_tools = Vec::new();
+    if config.is_valgrind_enabled() {
+        // Check valgrind existence.
+        //
+        // Block the execution whether the tool is not found.
+        Valgrind::check_existence().expect("`valgrind` not found on the system");
+
+        // Run tool.
+        let valgrind = Valgrind::run(config);
+
+        // Produce `valgrind` report.
+        valgrind.write_report(environment);
+
+        // Add data for final report.
+        vulnerability_tools.push(valgrind.final_report_data());
+    }
+
+    vulnerability_tools
+}
+
+fn run_energy_tools(config: &Configurator, environment: &Environment) -> Vec<ToolOutput> {
+    let mut energy_tools = Vec::new();
+    if config.is_powerstat_enabled() {
+        // Check powerstat existence.
+        //
+        // Block the execution whether the tool is not found.
+        Powerstat::check_existence().expect("`powerstat` not found on the system");
+
+        // Run tool.
+        let powerstat = Powerstat::run(config);
+
+        // Produce `powerstat` report.
+        powerstat.write_report(environment);
+
+        // Add data for final report.
+        energy_tools.push(powerstat.final_report_data());
+    }
+
+    if config.is_powertop_enabled() {
+        // Check powertop existence.
+        //
+        // Block the execution whether the tool is not found.
+        Powertop::check_existence().expect("`powertop` not found on the system");
+
+        // Run tool.
+        let powertop = Powertop::run(config);
+
+        // Produce `powertop` report.
+        powertop.write_report(environment);
+
+        // Add data for final report.
+        energy_tools.push(powertop.final_report_data());
+    }
+
+    energy_tools
+}
+
 fn main() {
     // Read command line arguments.
     let args = Args::parse();
@@ -75,46 +136,12 @@ fn main() {
             .expect("Internal error, built-in template");
     }
 
-    let mut vulnerability_tools = Vec::new();
-    if config.is_valgrind_enabled() {
-        // Check valgrind existence. Block the execution if the tool is not found.
-        Valgrind::check_existence().expect("`valgrind` not found on the system");
+    // Run vulnerability tools and retrieve their data for the final report.
+    let vulnerability_tools = run_vulnerability_tools(&config, &environment);
 
-        vulnerability_tools.push(Valgrind::run(
-            &config.valgrind,
-            &config.binary_path,
-            &config.binary,
-        ));
-    }
+    // Run energy tools and retrieve their data for the final report.
+    let energy_tools = run_energy_tools(&config, &environment);
 
-    let mut energy_tools = Vec::new();
-    if config.is_powerstat_enabled() {
-        // Check powerstat existence. Block the execution if the tool is not found.
-        Powerstat::check_existence().expect("`powerstat` not found on the system");
-
-        energy_tools.push(Powerstat::run(
-            &config.root,
-            &config.powerstat,
-            &config.binary_path,
-            &config.binary,
-        ));
-    }
-
-    if config.is_powertop_enabled() {
-        // Check powertop existence. Block the execution if the tool is not found.
-        Powertop::check_existence().expect("`powertop` not found on the system");
-
-        energy_tools.push(Powertop::run(
-            &config.root,
-            &config.powertop,
-            &config.binary_path,
-            &config.binary,
-        ));
-    }
-
-    Output::new(config.format, config.report_path).generate(
-        &environment,
-        &vulnerability_tools,
-        &energy_tools,
-    );
+    // Produce final report.
+    Output::produce_final_report(&config, &environment, &vulnerability_tools, &energy_tools);
 }

@@ -1,16 +1,16 @@
 use std::io::Error;
-use std::path::Path;
-use std::process::Output;
+
+use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{always_true, BinaryConfig};
+use crate::configurator::{always_true, Configurator};
+use crate::output::{create_report_path, Output, ToolOutput};
 
-use super::{
-    check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolResult,
-};
+use super::{check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args};
 
 const TOOL_NAME: &str = "powerstat";
+const TOOL_HEADER: &str = "Powerstat";
 
 // `[powerstat]` section options.
 #[derive(Deserialize)]
@@ -36,41 +36,64 @@ impl Args for PowerstatConfig {
     }
 }
 
-pub(crate) struct Powerstat;
+pub(crate) struct Powerstat<'a> {
+    config: &'a Configurator,
+    output: String,
+    result: &'static str,
+    report_path: String,
+}
 
-impl Powerstat {
-    pub(crate) fn check_existence() -> Result<Output, Error> {
+impl<'a> Powerstat<'a> {
+    pub(crate) fn check_existence() -> Result<std::process::Output, Error> {
         check_tool_existence(TOOL_NAME)
     }
 
-    pub(crate) fn run(
-        root: &str,
-        powerstat_config: &PowerstatConfig,
-        binary_path: &Path,
-        binary_config: &BinaryConfig,
-    ) -> ToolResult {
-        let powerstat_output = if root.is_empty() {
-            run_tool(TOOL_NAME, powerstat_config, binary_path, binary_config)
+    pub(crate) fn run(config: &'a Configurator) -> Self {
+        let output = if config.root.is_empty() {
+            run_tool(
+                TOOL_NAME,
+                &config.powerstat,
+                &config.binary_path,
+                &config.binary,
+            )
         } else {
             sudo_run_tool(
                 TOOL_NAME,
-                powerstat_config,
-                binary_path,
-                binary_config,
-                root,
+                &config.powerstat,
+                &config.binary_path,
+                &config.binary,
+                &config.root,
             )
         };
 
-        let (body, result) = if powerstat_output.status.success() {
-            stdout_output(powerstat_output.stdout)
+        let (output, result) = if output.status.success() {
+            stdout_output(output.stdout)
         } else {
-            stderr_output(powerstat_output.stderr)
+            stderr_output(output.stderr)
         };
 
-        ToolResult {
-            header: "Powerstat",
-            body,
+        let report_path = create_report_path(TOOL_NAME, config.format.ext());
+
+        Self {
+            config,
+            output,
             result,
+            report_path,
         }
+    }
+
+    pub(crate) fn write_report(&self, environment: &Environment) {
+        Output::write_report(
+            environment,
+            TOOL_HEADER,
+            self.result,
+            &self.output,
+            &self.config.report_path,
+            &self.report_path,
+        );
+    }
+
+    pub(crate) fn final_report_data(self) -> ToolOutput {
+        ToolOutput::new(TOOL_HEADER, self.report_path, self.result)
     }
 }

@@ -1,11 +1,38 @@
 use std::fs::write;
-use std::path::PathBuf;
+use std::path::Path;
 
 use minijinja::{context, Environment};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use crate::tools::ToolResult;
+use crate::configurator::Configurator;
+
+const FINAL_REPORT_MARKDOWN: &str = "final_report.md";
+
+pub(crate) fn create_report_path(tool_name: &str, extension: &str) -> String {
+    format!("{tool_name}.{extension}")
+}
+
+#[derive(Serialize)]
+pub(crate) struct ToolOutput {
+    header: &'static str,
+    report_path: String,
+    result: &'static str,
+}
+
+impl ToolOutput {
+    pub(crate) const fn new(
+        header: &'static str,
+        report_path: String,
+        result: &'static str,
+    ) -> Self {
+        Self {
+            header,
+            report_path,
+            result,
+        }
+    }
+}
 
 #[derive(Default, Deserialize)]
 pub(crate) enum ReportFormat {
@@ -18,42 +45,68 @@ pub(crate) enum ReportFormat {
     All,
 }
 
-pub(crate) struct Output {
-    report_format: ReportFormat,
-    output_path: PathBuf,
-}
-
-impl Output {
-    pub(crate) fn new(report_format: ReportFormat, output_path: PathBuf) -> Self {
-        Self {
-            report_format,
-            output_path,
+impl ReportFormat {
+    pub(crate) const fn ext(&self) -> &'static str {
+        if matches!(self, Self::Markdown) {
+            ".md"
+        } else {
+            ".html"
         }
     }
+}
 
-    pub(crate) fn generate(
-        self,
+pub(crate) struct Output;
+
+impl Output {
+    pub(crate) fn write_report(
         environment: &Environment,
-        vulnerability_tools: &[ToolResult],
-        energy_tools: &[ToolResult],
+        header: &str,
+        result: &str,
+        output: &str,
+        report_path: &Path,
+        report_path_file: &str,
+    ) {
+        let template = environment.get_template("md.report").unwrap();
+
+        let rendered = template
+            .render(context! {
+                header => header,
+                result => result,
+                output => output,
+            })
+            .unwrap();
+
+        write(report_path.join(report_path_file), rendered).unwrap();
+    }
+
+    pub(crate) fn produce_final_report(
+        config: &Configurator,
+        environment: &Environment,
+        vulnerability_tools: &[ToolOutput],
+        energy_tools: &[ToolOutput],
     ) {
         // Generate report containing results produced by each tool.
-        match self.report_format {
+        match config.format {
             // TODO: Move all in another branch when HTML report is implemented.
             ReportFormat::Markdown | ReportFormat::All => {
-                self.generate_markdown_report(environment, vulnerability_tools, energy_tools);
+                Self::generate_markdown_report(
+                    &config.report_path,
+                    environment,
+                    vulnerability_tools,
+                    energy_tools,
+                );
             }
             ReportFormat::Html => {}
         }
     }
 
     fn generate_markdown_report(
-        &self,
+        final_report_path: &Path,
         environment: &Environment,
-        vulnerability_tools: &[ToolResult],
-        energy_tools: &[ToolResult],
+        vulnerability_tools: &[ToolOutput],
+        energy_tools: &[ToolOutput],
     ) {
-        let template = environment.get_template("md.report").unwrap();
+        let template = environment.get_template("md.final_report").unwrap();
 
         let rendered = template
             .render(context! {
@@ -62,6 +115,6 @@ impl Output {
             })
             .unwrap();
 
-        write(&self.output_path, rendered).unwrap();
+        write(final_report_path.join(FINAL_REPORT_MARKDOWN), rendered).unwrap();
     }
 }

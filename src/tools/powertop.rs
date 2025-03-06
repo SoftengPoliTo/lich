@@ -1,17 +1,20 @@
 use std::io::Error;
 use std::path::Path;
-use std::process::Output;
+
+use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{always_true, BinaryConfig};
+use crate::configurator::{always_true, Configurator};
+use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
     check_tool_existence, run_tool_with_input, stderr_output, stdout_output,
-    sudo_run_tool_with_input, Args, ToolResult,
+    sudo_run_tool_with_input, Args,
 };
 
 const TOOL_NAME: &str = "powertop";
+const TOOL_HEADER: &str = "Powertop";
 
 // `[powertop]` section options.
 #[derive(Deserialize)]
@@ -37,38 +40,56 @@ impl Args for PowertopConfig {
     }
 }
 
-pub(crate) struct Powertop;
+pub(crate) struct Powertop<'a> {
+    config: &'a Configurator,
+    output: String,
+    result: &'static str,
+    report_path: String,
+}
 
-impl Powertop {
-    pub(crate) fn check_existence() -> Result<Output, Error> {
+impl<'a> Powertop<'a> {
+    pub(crate) fn check_existence() -> Result<std::process::Output, Error> {
         check_tool_existence(TOOL_NAME)
     }
 
-    pub(crate) fn run(
-        root: &str,
-        powertop_config: &PowertopConfig,
-        binary_path: &Path,
-        binary_config: &BinaryConfig,
-    ) -> ToolResult {
-        let binary_input = Self::create_binary_input(binary_path, binary_config.args());
+    pub(crate) fn run(config: &'a Configurator) -> Self {
+        let binary_input = Self::create_binary_input(&config.binary_path, config.binary.args());
 
-        let powertop_output = if root.is_empty() {
-            run_tool_with_input(TOOL_NAME, powertop_config, binary_input)
+        let output = if config.root.is_empty() {
+            run_tool_with_input(TOOL_NAME, &config.powertop, binary_input)
         } else {
-            sudo_run_tool_with_input(TOOL_NAME, powertop_config, binary_input, root)
+            sudo_run_tool_with_input(TOOL_NAME, &config.powertop, binary_input, &config.root)
         };
 
-        let (body, result) = if powertop_output.status.success() {
-            stdout_output(powertop_output.stdout)
+        let (output, result) = if output.status.success() {
+            stdout_output(output.stdout)
         } else {
-            stderr_output(powertop_output.stderr)
+            stderr_output(output.stderr)
         };
 
-        ToolResult {
-            header: "Powertop",
-            body,
+        let report_path = create_report_path(TOOL_NAME, config.format.ext());
+
+        Self {
+            config,
+            output,
             result,
+            report_path,
         }
+    }
+
+    pub(crate) fn write_report(&self, environment: &Environment) {
+        Output::write_report(
+            environment,
+            TOOL_HEADER,
+            self.result,
+            &self.output,
+            &self.config.report_path,
+            &self.report_path,
+        );
+    }
+
+    pub(crate) fn final_report_data(self) -> ToolOutput {
+        ToolOutput::new(TOOL_HEADER, self.report_path, self.result)
     }
 
     fn create_binary_input(binary_path: &Path, binary_arguments: &[String]) -> String {
