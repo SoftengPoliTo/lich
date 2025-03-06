@@ -64,10 +64,12 @@ impl Configurator {
             Err(e) => panic!("Error checking the binary path existence: {e}"),
         }
 
+        println!("{:?}", configuration.report_path);
+
         // Report path must be a directory.
         assert!(
-            configuration.report_path.is_dir(),
-            "The binary path must be a directory."
+            !configuration.report_path.is_file(),
+            "The configuration report path must be a directory."
         );
 
         // Create report path directory.
