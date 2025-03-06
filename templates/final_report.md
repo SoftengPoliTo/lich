@@ -1,6 +1,6 @@
 # Final Report
 
-This final report contains a sequence of reports produced executing the tools 
+This final report contains a sequence of reports produced executing the tools
 enabled in the `lich.toml` configuration file. Each subsection identifies
 a category containing the list of paths to the complete tool reports.
 
