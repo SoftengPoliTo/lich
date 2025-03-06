@@ -1,4 +1,4 @@
-use std::fs::read_to_string;
+use std::fs::{create_dir_all, read_to_string};
 use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
@@ -51,15 +51,27 @@ impl Configurator {
         let contents = read_to_string(configuration_path).unwrap();
         let configuration: Self = from_str(&contents).unwrap();
 
-        // TODO: If report path is a dir, create the default file `lich.extension`.
-
         // Binary path must not be a directory.
         assert!(
-            !configuration.binary_path.is_dir(),
+            configuration.binary_path.is_file(),
             "The binary path must not be a directory. Insert a path to the binary."
         );
 
-        // TODO: Check whether binary path exists.
+        // Check binary path existence.
+        match configuration.binary_path.try_exists() {
+            Ok(true) => {}
+            Ok(false) => panic!("The binary path does not exist"),
+            Err(e) => panic!("Error checking the binary path existence: {e}"),
+        }
+
+        // Report path must be a directory.
+        assert!(
+            configuration.report_path.is_dir(),
+            "The binary path must be a directory."
+        );
+
+        // Create report path directory.
+        create_dir_all(&configuration.report_path).unwrap();
 
         configuration
     }
