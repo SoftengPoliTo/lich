@@ -4,34 +4,42 @@
 binary-path = "./input/light-firmware-debug"
 # Report path.
 #
-# It can be a file or a directory path. In the second case, the `lich.ext` file
-# will be created.
-report-path = "./report.md"
-# Set root of the system in use.
+# It must be a directory path. The final report and every tool report will be
+# saved in this directory.
+report-path = "./lich"
+# Set the root for the system in use.
 root = "sudo"
 
-# All options for the binary to be evaluated.
+# All input arguments for the binary in analysis.
 [binary]
 # Binary input arguments.
 args = ["--hostname", "arco", "--domain", "arco"]
 
-# Optional valgrind options.
+# Optional valgrind arguments.
 [valgrind]
-enabled = false
+# Do not run valgrind tool.
+enable = false
+# Valgrind input arguments.
 args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
-# A timeout for running the binary. If the value is 0, the timeout is disabled.
-# The base measurement unit is second.
+# A timeout to stop binary execution. This parameter is useful when a server is
+# being tested.. When the value is 0, the timeout is disabled.
+# The basic measurement unit for this option is second [s].
 timeout = 10
 
-# Optional powerstat options.
+# Optional powerstat arguments.
 [powerstat]
-enabled = false
+# Do not run powerstat tool.
+enable = false
+# Powerstat input arguments.
+#
 # Take a sample each second and run for 60 seconds (1 minute). Use Intel RAPL
 # to extract energy consumption data and forcibly ignore zero power rate stats
 # from the battery. The 60s is the minimum allowed duration.
 args = ["-zR", "1", "60", "--"]
 
-# Optional powertop options.
+# Optional powertop arguments.
 [powertop]
-enabled = false
+# Run powertop tool.
+enable = true
+# Powertop input arguments.
 args = ["--time=10", "--csv=output.csv"]
