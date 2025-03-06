@@ -77,7 +77,8 @@ fn main() {
 
     let mut vulnerability_tools = Vec::new();
     if config.is_valgrind_enabled() {
-        Valgrind::check_existence();
+        // Check valgrind existence. Block the execution if the tool is not found.
+        Valgrind::check_existence().expect("`valgrind` not found on the system");
 
         vulnerability_tools.push(Valgrind::run(
             &config.valgrind,
@@ -88,7 +89,8 @@ fn main() {
 
     let mut energy_tools = Vec::new();
     if config.is_powerstat_enabled() {
-        Powerstat::check_existence();
+        // Check powerstat existence. Block the execution if the tool is not found.
+        Powerstat::check_existence().expect("`powerstat` not found on the system");
 
         energy_tools.push(Powerstat::run(
             &config.root,
@@ -99,7 +101,8 @@ fn main() {
     }
 
     if config.is_powertop_enabled() {
-        Powertop::check_existence();
+        // Check powertop existence. Block the execution if the tool is not found.
+        Powertop::check_existence().expect("`powertop` not found on the system");
 
         energy_tools.push(Powertop::run(
             &config.root,

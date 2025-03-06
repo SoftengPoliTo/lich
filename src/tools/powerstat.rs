@@ -1,4 +1,6 @@
+use std::io::Error;
 use std::path::Path;
+use std::process::Output;
 
 use serde::Deserialize;
 
@@ -7,6 +9,8 @@ use crate::configurator::{always_true, BinaryConfig};
 use super::{
     check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolResult,
 };
+
+const TOOL_NAME: &str = "powerstat";
 
 // `[powerstat]` section options.
 #[derive(Deserialize)]
@@ -35,8 +39,8 @@ impl Args for PowerstatConfig {
 pub(crate) struct Powerstat;
 
 impl Powerstat {
-    pub(crate) fn check_existence() {
-        check_tool_existence("powerstat").expect("powerstat cannot be found on the system.");
+    pub(crate) fn check_existence() -> Result<Output, Error> {
+        check_tool_existence(TOOL_NAME)
     }
 
     pub(crate) fn run(
@@ -46,10 +50,10 @@ impl Powerstat {
         binary_config: &BinaryConfig,
     ) -> ToolResult {
         let powerstat_output = if root.is_empty() {
-            run_tool("powerstat", powerstat_config, binary_path, binary_config)
+            run_tool(TOOL_NAME, powerstat_config, binary_path, binary_config)
         } else {
             sudo_run_tool(
-                "powerstat",
+                TOOL_NAME,
                 powerstat_config,
                 binary_path,
                 binary_config,

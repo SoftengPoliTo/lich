@@ -1,4 +1,6 @@
+use std::io::Error;
 use std::path::Path;
+use std::process::Output;
 
 use serde::Deserialize;
 
@@ -8,6 +10,8 @@ use super::{
     check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output, Args,
     ToolResult,
 };
+
+const TOOL_NAME: &str = "valgrind";
 
 // `[valgrind]` section options.
 #[derive(Deserialize)]
@@ -39,8 +43,8 @@ impl Args for ValgrindConfig {
 pub(crate) struct Valgrind;
 
 impl Valgrind {
-    pub(crate) fn check_existence() {
-        check_tool_existence("valgrind").expect("Valgrind cannot be found on the system.");
+    pub(crate) fn check_existence() -> Result<Output, Error> {
+        check_tool_existence(TOOL_NAME)
     }
 
     pub(crate) fn run(
@@ -50,14 +54,14 @@ impl Valgrind {
     ) -> ToolResult {
         let valgrind_output = if valgrind_config.timeout > 0 {
             run_tool_with_timeout(
-                "valgrind",
+                TOOL_NAME,
                 valgrind_config,
                 binary_path,
                 binary_config,
                 valgrind_config.timeout,
             )
         } else {
-            run_tool("valgrind", valgrind_config, binary_path, binary_config)
+            run_tool(TOOL_NAME, valgrind_config, binary_path, binary_config)
         };
 
         let (body, result) = if valgrind_output.status.success() {

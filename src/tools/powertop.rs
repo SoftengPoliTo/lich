@@ -1,4 +1,6 @@
+use std::io::Error;
 use std::path::Path;
+use std::process::Output;
 
 use serde::Deserialize;
 
@@ -8,6 +10,8 @@ use super::{
     check_tool_existence, run_tool_with_input, stderr_output, stdout_output,
     sudo_run_tool_with_input, Args, ToolResult,
 };
+
+const TOOL_NAME: &str = "powertop";
 
 // `[powertop]` section options.
 #[derive(Deserialize)]
@@ -36,8 +40,8 @@ impl Args for PowertopConfig {
 pub(crate) struct Powertop;
 
 impl Powertop {
-    pub(crate) fn check_existence() {
-        check_tool_existence("powertop").expect("powertop cannot be found on the system.");
+    pub(crate) fn check_existence() -> Result<Output, Error> {
+        check_tool_existence(TOOL_NAME)
     }
 
     pub(crate) fn run(
@@ -49,9 +53,9 @@ impl Powertop {
         let binary_input = Self::create_binary_input(binary_path, binary_config.args());
 
         let powertop_output = if root.is_empty() {
-            run_tool_with_input("powertop", powertop_config, binary_input)
+            run_tool_with_input(TOOL_NAME, powertop_config, binary_input)
         } else {
-            sudo_run_tool_with_input("powertop", powertop_config, binary_input, root)
+            sudo_run_tool_with_input(TOOL_NAME, powertop_config, binary_input, root)
         };
 
         let (body, result) = if powertop_output.status.success() {
