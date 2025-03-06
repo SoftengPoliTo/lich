@@ -6,8 +6,8 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
-use std::ffi::OsStr;
 use std::io::Error;
+use std::path::Path;
 use std::process::{Command, Output};
 
 use crate::configurator::BinaryConfig;
@@ -27,13 +27,14 @@ fn create_tool_output(command_ref: &mut Command) -> Output {
         command_ref.get_args().collect::<Vec<&OsStr>>()
     );
 
+fn create_tool_output(command_ref: &mut Command) -> Output {
     command_ref.output().unwrap()
 }
 
-fn sudo_run_tool_with_input<T: Args, S: AsRef<OsStr>>(
+fn sudo_run_tool_with_input<T: Args>(
     tool_name: &str,
     tool_config: &T,
-    binary_input: S,
+    binary_input: &str,
     root: &str,
 ) -> Output {
     create_tool_output(
@@ -44,11 +45,7 @@ fn sudo_run_tool_with_input<T: Args, S: AsRef<OsStr>>(
     )
 }
 
-fn run_tool_with_input<T: Args, S: AsRef<OsStr>>(
-    tool_name: &str,
-    tool_config: &T,
-    binary_input: S,
-) -> Output {
+fn run_tool_with_input<T: Args>(tool_name: &str, tool_config: &T, binary_input: &str) -> Output {
     create_tool_output(
         Command::new(tool_name)
             .args(tool_config.args())
@@ -56,10 +53,10 @@ fn run_tool_with_input<T: Args, S: AsRef<OsStr>>(
     )
 }
 
-fn sudo_run_tool<T: Args, S: AsRef<OsStr>>(
+fn sudo_run_tool<T: Args>(
     tool_name: &str,
     tool_config: &T,
-    binary_path: S,
+    binary_path: &Path,
     binary_config: &BinaryConfig,
     root: &str,
 ) -> Output {
@@ -72,10 +69,10 @@ fn sudo_run_tool<T: Args, S: AsRef<OsStr>>(
     )
 }
 
-fn run_tool<T: Args, S: AsRef<OsStr>>(
+fn run_tool<T: Args>(
     tool_name: &str,
     tool_config: &T,
-    binary_path: S,
+    binary_path: &Path,
     binary_config: &BinaryConfig,
 ) -> Output {
     create_tool_output(
@@ -86,10 +83,10 @@ fn run_tool<T: Args, S: AsRef<OsStr>>(
     )
 }
 
-fn run_tool_with_timeout<T: Args, S: AsRef<OsStr>>(
+fn run_tool_with_timeout<T: Args>(
     tool_name: &str,
     tool_config: &T,
-    binary_path: S,
+    binary_path: &Path,
     binary_config: &BinaryConfig,
     timeout: u16,
 ) -> Output {
