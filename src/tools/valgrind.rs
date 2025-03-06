@@ -57,17 +57,17 @@ impl<'a> Valgrind<'a> {
         let output = if config.valgrind.timeout > 0 {
             run_tool_with_timeout(
                 TOOL_NAME,
-                &config.valgrind,
+                config.valgrind.args(),
                 &config.binary_path,
-                &config.binary,
+                config.binary.args(),
                 config.valgrind.timeout,
             )
         } else {
             run_tool(
                 TOOL_NAME,
-                &config.valgrind,
+                config.valgrind.args(),
                 &config.binary_path,
-                &config.binary,
+                config.binary.args(),
             )
         };
 

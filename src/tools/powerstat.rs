@@ -52,16 +52,16 @@ impl<'a> Powerstat<'a> {
         let output = if config.root.is_empty() {
             run_tool(
                 TOOL_NAME,
-                &config.powerstat,
+                config.powerstat.args(),
                 &config.binary_path,
-                &config.binary,
+                config.binary.args(),
             )
         } else {
             sudo_run_tool(
                 TOOL_NAME,
-                &config.powerstat,
+                config.powerstat.args(),
                 &config.binary_path,
-                &config.binary,
+                config.binary.args(),
                 &config.root,
             )
         };

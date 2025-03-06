@@ -56,9 +56,14 @@ impl<'a> Powertop<'a> {
         let binary_input = Self::create_binary_input(&config.binary_path, config.binary.args());
 
         let output = if config.root.is_empty() {
-            run_tool_with_input(TOOL_NAME, &config.powertop, &binary_input)
+            run_tool_with_input(TOOL_NAME, config.powertop.args(), &binary_input)
         } else {
-            sudo_run_tool_with_input(TOOL_NAME, &config.powertop, &binary_input, &config.root)
+            sudo_run_tool_with_input(
+                TOOL_NAME,
+                config.powertop.args(),
+                &binary_input,
+                &config.root,
+            )
         };
 
         let (output, result) = if output.status.success() {
