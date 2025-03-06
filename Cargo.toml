@@ -15,3 +15,13 @@ serde.default-features = false
 serde.features = ["derive"]
 
 toml.version = "0.8.20"
+
+tracing.version = "0.1.41"
+tracing.optional = true
+tracing.default-features = false
+
+tracing-subscriber.version = "0.3.19"
+tracing-subscriber.optional = true
+
+[features]
+tracing = ["dep:tracing", "dep:tracing-subscriber"]

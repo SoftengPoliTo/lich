@@ -121,6 +121,9 @@ fn run_energy_tools(config: &Configurator, environment: &Environment) -> Vec<Too
 }
 
 fn main() {
+    #[cfg(feature = "tracing")]
+    tracing_subscriber::fmt().init();
+
     // Read command line arguments.
     let args = Args::parse();
 

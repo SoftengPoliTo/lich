@@ -51,6 +51,12 @@ impl Configurator {
         let contents = read_to_string(configuration_path).unwrap();
         let configuration: Self = from_str(&contents).unwrap();
 
+        #[cfg(feature = "tracing")]
+        {
+            tracing::info!("Binary path: {:?}", configuration.binary_path);
+            tracing::info!("Report path: {:?}", configuration.report_path);
+        }
+
         // Binary path must not be a directory.
         assert!(
             configuration.binary_path.is_file(),
@@ -63,8 +69,6 @@ impl Configurator {
             Ok(false) => panic!("The binary path does not exist"),
             Err(e) => panic!("Error checking the binary path existence: {e}"),
         }
-
-        println!("{:?}", configuration.report_path);
 
         // Report path must be a directory.
         assert!(
