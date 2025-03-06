@@ -13,7 +13,7 @@ use super::{
 #[derive(Deserialize)]
 pub(crate) struct ValgrindConfig {
     #[serde(default = "always_true")]
-    pub(crate) enabled: bool,
+    pub(crate) enable: bool,
     #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
     #[serde(default)]
@@ -23,7 +23,7 @@ pub(crate) struct ValgrindConfig {
 impl Default for ValgrindConfig {
     fn default() -> Self {
         Self {
-            enabled: true,
+            enable: true,
             args: Vec::new(),
             timeout: 0,
         }

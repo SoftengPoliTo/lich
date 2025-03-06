@@ -12,7 +12,7 @@ use super::{
 #[derive(Deserialize)]
 pub(crate) struct PowerstatConfig {
     #[serde(default = "always_true")]
-    pub(crate) enabled: bool,
+    pub(crate) enable: bool,
     #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
 }
@@ -20,7 +20,7 @@ pub(crate) struct PowerstatConfig {
 impl Default for PowerstatConfig {
     fn default() -> Self {
         Self {
-            enabled: true,
+            enable: true,
             args: Vec::new(),
         }
     }

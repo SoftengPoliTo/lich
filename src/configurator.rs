@@ -67,18 +67,18 @@ impl Configurator {
     // If [`valgrind`] section does not exist, enable valgrind with the default
     // parameters.
     pub(crate) fn is_valgrind_enabled(&self) -> bool {
-        self.valgrind.enabled
+        self.valgrind.enable
     }
 
     // If [`powerstat`] section does not exist, enable powerstat with the default
     // parameters.
     pub(crate) fn is_powerstat_enabled(&self) -> bool {
-        self.powerstat.enabled
+        self.powerstat.enable
     }
 
     // If [`powertop`] section does not exist, enable powertop with the default
     // parameters.
     pub(crate) fn is_powertop_enabled(&self) -> bool {
-        self.powertop.enabled
+        self.powertop.enable
     }
 }
