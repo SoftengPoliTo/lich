@@ -10,7 +10,7 @@ use minijinja::Environment;
 
 use crate::configurator::Configurator;
 use crate::output::{Output, ToolOutput};
-use crate::tools::{Powerstat, Powertop, Valgrind};
+use crate::tools::{Powerstat, Powertop, ToolCommands, Valgrind};
 
 macro_rules! builtin_templates {
     ($(($name:expr, $template:expr)),+) => {

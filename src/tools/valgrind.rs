@@ -9,6 +9,7 @@ use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
     check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output, Args,
+    ToolCommands,
 };
 
 const TOOL_NAME: &str = "valgrind";
@@ -48,12 +49,12 @@ pub(crate) struct Valgrind<'a> {
     report_path: String,
 }
 
-impl<'a> Valgrind<'a> {
-    pub(crate) fn check_existence() -> Result<std::process::Output, Error> {
+impl<'a> ToolCommands<'a> for Valgrind<'a> {
+    fn check_existence() -> Result<std::process::Output, Error> {
         check_tool_existence(TOOL_NAME)
     }
 
-    pub(crate) fn run(config: &'a Configurator) -> Self {
+    fn run(config: &'a Configurator) -> Self {
         let output = if config.valgrind.timeout > 0 {
             run_tool_with_timeout(
                 TOOL_NAME,
@@ -90,7 +91,7 @@ impl<'a> Valgrind<'a> {
         }
     }
 
-    pub(crate) fn write_report(&self, environment: &Environment) {
+    fn write_report(&self, environment: &Environment) {
         Output::write_report(
             environment,
             TOOL_HEADER,
@@ -101,7 +102,7 @@ impl<'a> Valgrind<'a> {
         );
     }
 
-    pub(crate) fn final_report_data(self) -> ToolOutput {
+    fn final_report_data(self) -> ToolOutput {
         ToolOutput::new(TOOL_HEADER, self.report_path, self.result)
     }
 }

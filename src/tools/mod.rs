@@ -11,8 +11,20 @@ use std::io::Error;
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
 
+use minijinja::Environment;
+
+use crate::configurator::Configurator;
+use crate::output::ToolOutput;
+
 pub(crate) trait Args {
     fn args(&self) -> &[String];
+}
+
+pub(crate) trait ToolCommands<'a> {
+    fn check_existence() -> Result<Output, Error>;
+    fn run(config: &'a Configurator) -> Self;
+    fn write_report(&self, environment: &Environment);
+    fn final_report_data(self) -> ToolOutput;
 }
 
 fn read_file_to_string(path: &Path) -> String {

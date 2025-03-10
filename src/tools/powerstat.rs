@@ -7,7 +7,9 @@ use serde::Deserialize;
 use crate::configurator::{always_true, Configurator};
 use crate::output::{create_report_path, Output, ToolOutput};
 
-use super::{check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args};
+use super::{
+    check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolCommands,
+};
 
 const TOOL_NAME: &str = "powerstat";
 const TOOL_HEADER: &str = "Powerstat";
@@ -43,12 +45,12 @@ pub(crate) struct Powerstat<'a> {
     report_path: String,
 }
 
-impl<'a> Powerstat<'a> {
-    pub(crate) fn check_existence() -> Result<std::process::Output, Error> {
+impl<'a> ToolCommands<'a> for Powerstat<'a> {
+    fn check_existence() -> Result<std::process::Output, Error> {
         check_tool_existence(TOOL_NAME)
     }
 
-    pub(crate) fn run(config: &'a Configurator) -> Self {
+    fn run(config: &'a Configurator) -> Self {
         let output = if config.root.is_empty() {
             run_tool(
                 TOOL_NAME,
@@ -82,7 +84,7 @@ impl<'a> Powerstat<'a> {
         }
     }
 
-    pub(crate) fn write_report(&self, environment: &Environment) {
+    fn write_report(&self, environment: &Environment) {
         Output::write_report(
             environment,
             TOOL_HEADER,
@@ -93,7 +95,7 @@ impl<'a> Powerstat<'a> {
         );
     }
 
-    pub(crate) fn final_report_data(self) -> ToolOutput {
+    fn final_report_data(self) -> ToolOutput {
         ToolOutput::new(TOOL_HEADER, self.report_path, self.result)
     }
 }
