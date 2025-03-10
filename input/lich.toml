@@ -17,7 +17,7 @@ args = ["--hostname", "arco", "--domain", "arco"]
 
 # Optional valgrind arguments.
 [valgrind]
-# Run valgrind tool.
+# Run valgrind tool. If `false`, the tool does not run.
 enable = true
 # Valgrind input arguments.
 args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
@@ -28,7 +28,7 @@ timeout = 10
 
 # Optional powerstat arguments.
 [powerstat]
-# Do not run powerstat tool.
+# Run powerstat tool. If `false`, the tool does not run.
 enable = true
 # Powerstat input arguments.
 #
@@ -39,7 +39,7 @@ args = ["-zR", "1", "60", "--"]
 
 # Optional powertop arguments.
 [powertop]
-# Run powertop tool.
+# Run powertop tool. If `false`, the tool does not run.
 enable = true
 # Powertop input arguments.
 args = ["--time=10"]
