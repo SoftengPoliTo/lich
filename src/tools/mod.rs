@@ -9,7 +9,7 @@ pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 use std::fs::read_to_string;
 use std::io::Error;
 use std::path::Path;
-use std::process::{Command, Output};
+use std::process::{Command, Output, Stdio};
 
 pub(crate) trait Args {
     fn args(&self) -> &[String];
@@ -96,7 +96,11 @@ mod tracing {
 }
 
 fn create_tool_output(command_ref: &mut Command) -> Output {
-    command_ref.output().unwrap()
+    command_ref
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()
+        .unwrap()
 }
 
 fn sudo_run_tool_with_input(
