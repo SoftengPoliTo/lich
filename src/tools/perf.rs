@@ -69,7 +69,9 @@ impl<'a> ToolCommands<'a> for Perf<'a> {
         };
 
         let (output, result) = if output.status.success() {
-            stdout_output(output.stdout)
+            let mut v = output.stdout;
+            v.extend_from_slice(&output.stderr);
+            stdout_output(v)
         } else {
             stderr_output(output.stderr)
         };

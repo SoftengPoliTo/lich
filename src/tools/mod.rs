@@ -209,11 +209,11 @@ fn stdout_result() -> &'static str {
 fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
     let output = String::from_utf8(message).unwrap();
     let result = stdout_result();
-    (output, result)
+    (output.trim().into(), result)
 }
 
 fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
     let output = String::from_utf8(message).unwrap();
     let result = "[Error 🤕]";
-    (output, result)
+    (output.trim().into(), result)
 }
