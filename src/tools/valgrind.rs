@@ -71,11 +71,14 @@ impl<'a> Valgrind<'a> {
             )
         };
 
-        let (output, result) = if output.status.success() {
-            stdout_output(output.stdout)
-        } else {
-            stderr_output(output.stderr)
-        };
+        let (output, result) =
+            // Print stdout if the tool terminates with a success, or with a timeout (124). A
+            // signal termination is considered an error (None value), hence stderr will be printed.
+            if output.status.success() || output.status.code() == Some(124) {
+                stdout_output(output.stdout)
+            } else {
+                stderr_output(output.stderr)
+            };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());
 
