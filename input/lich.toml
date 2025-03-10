@@ -42,4 +42,6 @@ args = ["-zR", "1", "60", "--"]
 # Run powertop tool.
 enable = true
 # Powertop input arguments.
-args = ["--time=10", "--csv=output.csv"]
+args = ["--time=10"]
+# Csv output path.
+csv-output = "output.csv"

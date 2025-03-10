@@ -1,5 +1,6 @@
+use std::fs::remove_file;
 use std::io::Error;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use minijinja::Environment;
 
@@ -9,12 +10,17 @@ use crate::configurator::{always_true, Configurator};
 use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
-    check_tool_existence, run_tool_with_input, stderr_output, stdout_output,
+    check_tool_existence, read_file_to_string, run_tool_with_input, stderr_output, stdout_result,
     sudo_run_tool_with_input, Args,
 };
 
 const TOOL_NAME: &str = "powertop";
 const TOOL_HEADER: &str = "Powertop";
+const TOOL_CSV_OUTPUT: &str = "powertop.csv";
+
+fn default_csv_output() -> PathBuf {
+    PathBuf::from(TOOL_CSV_OUTPUT)
+}
 
 // `[powertop]` section options.
 #[derive(Deserialize)]
@@ -23,6 +29,24 @@ pub(crate) struct PowertopConfig {
     pub(crate) enable: bool,
     #[serde(default = "Vec::new")]
     pub(crate) args: Vec<String>,
+    #[serde(rename = "csv-output")]
+    #[serde(default = "default_csv_output")]
+    pub(crate) csv_output: PathBuf,
+}
+
+impl PowertopConfig {
+    pub(crate) fn check_csv_output_path(&self) -> bool {
+        self.csv_output
+            .extension()
+            .is_some_and(|value| value == "csv")
+    }
+
+    pub(crate) fn add_csv_output_to_args(&mut self) {
+        self.args.push(format!(
+            "--csv={}",
+            self.csv_output.to_str().unwrap_or(TOOL_CSV_OUTPUT)
+        ));
+    }
 }
 
 impl Default for PowertopConfig {
@@ -30,6 +54,7 @@ impl Default for PowertopConfig {
         Self {
             enable: true,
             args: Vec::new(),
+            csv_output: default_csv_output(),
         }
     }
 }
@@ -67,7 +92,12 @@ impl<'a> Powertop<'a> {
         };
 
         let (output, result) = if output.status.success() {
-            stdout_output(output.stdout)
+            let output = read_file_to_string(&config.powertop.csv_output);
+
+            // Remove output file
+            remove_file(&config.powertop.csv_output).unwrap();
+
+            (output, stdout_result())
         } else {
             stderr_output(output.stderr)
         };

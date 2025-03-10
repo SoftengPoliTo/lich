@@ -49,7 +49,7 @@ pub(crate) struct Configurator {
 impl Configurator {
     pub(crate) fn read(configuration_path: &Path) -> Self {
         let contents = read_to_string(configuration_path).unwrap();
-        let configuration: Self = from_str(&contents).unwrap();
+        let mut configuration: Self = from_str(&contents).unwrap();
 
         #[cfg(feature = "tracing")]
         {
@@ -75,6 +75,15 @@ impl Configurator {
             !configuration.report_path.is_file(),
             "The configuration report path must be a directory."
         );
+
+        // Check powertop csv path.
+        assert!(
+            configuration.powertop.check_csv_output_path(),
+            "The csv output path must be a file path with the `csv` extension."
+        );
+
+        // Add `csv` output to powertop arguments.
+        configuration.powertop.add_csv_output_to_args();
 
         // Create report path directory.
         create_dir_all(&configuration.report_path).unwrap();
