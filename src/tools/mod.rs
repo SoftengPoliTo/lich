@@ -111,10 +111,11 @@ mod tracing {
 
 fn create_tool_output(command_ref: &mut Command) -> Output {
     let output = command_ref
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .output()
         .unwrap();
+
     println!();
     output
 }
