@@ -15,6 +15,11 @@ pub(crate) trait Args {
     fn args(&self) -> &[String];
 }
 
+fn create_binary_input(binary_path: &Path, binary_arguments: &[String]) -> String {
+    let arguments = binary_arguments.join(" ");
+    format!("{} {arguments}", binary_path.to_str().unwrap())
+}
+
 fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
     Command::new(tool_name).arg("-v").output()
 }

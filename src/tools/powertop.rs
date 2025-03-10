@@ -1,6 +1,6 @@
 use std::fs::remove_file;
 use std::io::Error;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use minijinja::Environment;
 
@@ -10,8 +10,8 @@ use crate::configurator::{always_true, Configurator};
 use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
-    check_tool_existence, read_file_to_string, run_tool_with_input, stderr_output, stdout_result,
-    sudo_run_tool_with_input, Args,
+    check_tool_existence, create_binary_input, read_file_to_string, run_tool_with_input,
+    stderr_output, stdout_result, sudo_run_tool_with_input, Args,
 };
 
 const TOOL_NAME: &str = "powertop";
@@ -78,7 +78,7 @@ impl<'a> Powertop<'a> {
     }
 
     pub(crate) fn run(config: &'a Configurator) -> Self {
-        let binary_input = Self::create_binary_input(&config.binary_path, config.binary.args());
+        let binary_input = create_binary_input(&config.binary_path, config.binary.args());
 
         let output = if config.root.is_empty() {
             run_tool_with_input(TOOL_NAME, config.powertop.args(), &binary_input)
@@ -125,10 +125,5 @@ impl<'a> Powertop<'a> {
 
     pub(crate) fn final_report_data(self) -> ToolOutput {
         ToolOutput::new(TOOL_HEADER, self.report_path, self.result)
-    }
-
-    fn create_binary_input(binary_path: &Path, binary_arguments: &[String]) -> String {
-        let arguments = binary_arguments.join(" ");
-        format!("{} {arguments}", binary_path.to_str().unwrap())
     }
 }
