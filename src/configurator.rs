@@ -76,14 +76,8 @@ impl Configurator {
             "The configuration report path must be a directory."
         );
 
-        // Check powertop csv path.
-        assert!(
-            configuration.powertop.check_csv_output_path(),
-            "The csv output path must be a file path with the `csv` extension."
-        );
-
-        // Add `csv` output to powertop arguments.
-        configuration.powertop.add_csv_output_to_args();
+        // Powertop configuration.
+        Self::powertop(&mut configuration);
 
         // Create report path directory.
         create_dir_all(&configuration.report_path).unwrap();
@@ -107,5 +101,17 @@ impl Configurator {
     // parameters.
     pub(crate) fn is_powertop_enabled(&self) -> bool {
         self.powertop.enable
+    }
+
+    // Powertop configuration.
+    fn powertop(config: &mut Configurator) {
+        // Check powertop csv path.
+        assert!(
+            config.powertop.check_csv_output_path(),
+            "The csv output path must be a file path with the `csv` extension."
+        );
+
+        // Add `csv` output to powertop arguments.
+        config.powertop.add_csv_output_to_args();
     }
 }
