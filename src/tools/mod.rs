@@ -171,9 +171,13 @@ fn run_tool_with_timeout(
     )
 }
 
+fn stdout_result() -> &'static str {
+    "[Success 😁]"
+}
+
 fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
     let output = String::from_utf8(message).unwrap();
-    let result = "[Success &#x1F600;]";
+    let result = stdout_result();
     (output, result)
 }
 
