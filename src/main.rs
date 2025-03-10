@@ -62,6 +62,11 @@ struct Args {
     configuration_path: PathBuf,
 }
 
+fn run_message(message: &str) {
+    println!("Running {message}...");
+    println!();
+}
+
 fn run_vulnerability_tools(config: &Configurator, environment: &Environment) -> Vec<ToolOutput> {
     let mut vulnerability_tools = Vec::new();
     if config.is_valgrind_enabled() {
@@ -71,6 +76,7 @@ fn run_vulnerability_tools(config: &Configurator, environment: &Environment) -> 
         Valgrind::check_existence().expect("`valgrind` not found on the system");
 
         // Run tool.
+        run_message("valgrind");
         let valgrind = Valgrind::run(config);
 
         // Produce `valgrind` report.
@@ -92,6 +98,7 @@ fn run_energy_tools(config: &Configurator, environment: &Environment) -> Vec<Too
         Powerstat::check_existence().expect("`powerstat` not found on the system");
 
         // Run tool.
+        run_message("powerstat");
         let powerstat = Powerstat::run(config);
 
         // Produce `powerstat` report.
@@ -108,6 +115,7 @@ fn run_energy_tools(config: &Configurator, environment: &Environment) -> Vec<Too
         Powertop::check_existence().expect("`powertop` not found on the system");
 
         // Run tool.
+        run_message("powertop");
         let powertop = Powertop::run(config);
 
         // Produce `powertop` report.

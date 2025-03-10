@@ -96,11 +96,13 @@ mod tracing {
 }
 
 fn create_tool_output(command_ref: &mut Command) -> Output {
-    command_ref
+    let output = command_ref
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .output()
-        .unwrap()
+        .unwrap();
+    println!();
+    output
 }
 
 fn sudo_run_tool_with_input(
