@@ -6,7 +6,7 @@ use serde::Deserialize;
 use toml::from_str;
 
 use crate::output::ReportFormat;
-use crate::tools::{Args, PowerstatConfig, PowertopConfig, ValgrindConfig};
+use crate::tools::{Args, PerfConfig, PowerstatConfig, PowertopConfig, ValgrindConfig};
 
 pub(crate) fn always_true() -> bool {
     true
@@ -40,6 +40,8 @@ pub(crate) struct Configurator {
     pub(crate) binary: BinaryConfig,
     #[serde(default)]
     pub(crate) valgrind: ValgrindConfig,
+    #[serde(default)]
+    pub(crate) perf: PerfConfig,
     #[serde(default)]
     pub(crate) powerstat: PowerstatConfig,
     #[serde(default)]
@@ -89,6 +91,12 @@ impl Configurator {
     // parameters.
     pub(crate) fn is_valgrind_enabled(&self) -> bool {
         self.valgrind.enable
+    }
+
+    // If [`perf`] section does not exist, enable perf with the default
+    // parameters.
+    pub(crate) fn is_perf_enabled(&self) -> bool {
+        self.perf.enable
     }
 
     // If [`powerstat`] section does not exist, enable powerstat with the default

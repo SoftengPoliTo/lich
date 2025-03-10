@@ -26,6 +26,15 @@ args = ["--leak-check=full", "--track-origins=yes", "--error-exitcode=1"]
 # The basic measurement unit for this option is second [s].
 timeout = 10
 
+# Optional perf arguments.
+[perf]
+# Run perf tool. If `false`, the tool does not run.
+enable = true
+# Perf input arguments.
+#
+# Run for 10s (basic measurement unit is milliseconds).
+args = ["stat", "--timeout", "10000", "-ae", "power/energy-cores/,power/energy-pkg/,power/energy-psys/"]
+
 # Optional powerstat arguments.
 [powerstat]
 # Run powerstat tool. If `false`, the tool does not run.

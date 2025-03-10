@@ -1,7 +1,9 @@
+mod perf;
 mod powerstat;
 mod powertop;
 mod valgrind;
 
+pub(crate) use perf::{Perf, PerfConfig};
 pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};

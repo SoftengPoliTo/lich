@@ -10,7 +10,7 @@ use minijinja::Environment;
 
 use crate::configurator::Configurator;
 use crate::output::{Output, ToolOutput};
-use crate::tools::{Powerstat, Powertop, ToolCommands, Valgrind};
+use crate::tools::{Perf, Powerstat, Powertop, ToolCommands, Valgrind};
 
 macro_rules! builtin_templates {
     ($(($name:expr, $template:expr)),+) => {
@@ -91,6 +91,24 @@ fn run_vulnerability_tools(config: &Configurator, environment: &Environment) -> 
 
 fn run_energy_tools(config: &Configurator, environment: &Environment) -> Vec<ToolOutput> {
     let mut energy_tools = Vec::new();
+
+    if config.is_perf_enabled() {
+        // Check perf existence.
+        //
+        // Block the execution whether the tool is not found.
+        Perf::check_existence().expect("`perf` not found on the system");
+
+        // Run tool.
+        run_message("perf");
+        let perf = Perf::run(config);
+
+        // Produce `perf` report.
+        perf.write_report(environment);
+
+        // Add data for final report.
+        energy_tools.push(perf.final_report_data());
+    }
+
     if config.is_powerstat_enabled() {
         // Check powerstat existence.
         //
