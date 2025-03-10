@@ -6,6 +6,7 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
+use std::fs::read_to_string;
 use std::io::Error;
 use std::path::Path;
 use std::process::{Command, Output};
@@ -185,4 +186,8 @@ fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
     let output = String::from_utf8(message).unwrap();
     let result = "[Error 🤕]";
     (output, result)
+}
+
+fn read_file_to_string(path: &Path) -> String {
+    read_to_string(path).unwrap()
 }
