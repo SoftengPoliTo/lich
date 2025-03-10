@@ -183,6 +183,6 @@ fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
 
 fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
     let output = String::from_utf8(message).unwrap();
-    let result = "[Error &#x1F915;]";
+    let result = "[Error 🤕]";
     (output, result)
 }
