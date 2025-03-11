@@ -1,8 +1,9 @@
 # Final Report
 
 This final report contains a sequence of reports produced executing the tools
-enabled in the `lich.toml` configuration file. Each subsection identifies
-a category containing the list of paths to the complete tool reports.
+enabled in `lich.toml` configuration file. Each subsection identifies a
+different kind of software assessment and it consists of a list of paths
+pointing to complete tools reports.
 
 {% if vulnerability_tools | length != 0 -%}
 
