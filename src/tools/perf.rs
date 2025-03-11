@@ -8,7 +8,8 @@ use crate::configurator::{always_true, Configurator};
 use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
-    check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolCommands,
+    check_tool_existence, run_tool, stderr_output, stdout_stderr_output, sudo_run_tool, Args,
+    ToolCommands,
 };
 
 const TOOL_NAME: &str = "perf";
@@ -69,11 +70,9 @@ impl<'a> ToolCommands<'a> for Perf<'a> {
         };
 
         let (output, result) = if output.status.success() {
-            let mut v = output.stdout;
-            v.extend_from_slice(&output.stderr);
-            stdout_output(v)
+            stdout_stderr_output(&output.stdout, &output.stderr)
         } else {
-            stderr_output(output.stderr)
+            stderr_output(&output.stderr)
         };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());

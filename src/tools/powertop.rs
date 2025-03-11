@@ -99,7 +99,7 @@ impl<'a> ToolCommands<'a> for Powertop<'a> {
 
             (output, stdout_result())
         } else {
-            stderr_output(output.stderr)
+            stderr_output(&output.stderr)
         };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());

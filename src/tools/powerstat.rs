@@ -69,9 +69,9 @@ impl<'a> ToolCommands<'a> for Powerstat<'a> {
         };
 
         let (output, result) = if output.status.success() {
-            stdout_output(output.stdout)
+            stdout_output(&output.stdout)
         } else {
-            stderr_output(output.stderr)
+            stderr_output(&output.stderr)
         };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());

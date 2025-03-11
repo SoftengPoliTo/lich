@@ -8,8 +8,8 @@ use crate::configurator::{always_true, Configurator};
 use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
-    check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output, Args,
-    ToolCommands,
+    check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output,
+    stdout_stderr_output, Args, ToolCommands,
 };
 
 const TOOL_NAME: &str = "valgrind";
@@ -73,12 +73,15 @@ impl<'a> ToolCommands<'a> for Valgrind<'a> {
         };
 
         let (output, result) =
-            // Print stdout if the tool terminates with a success, or with a timeout (124). A
-            // signal termination is considered an error (None value), hence stderr will be printed.
-            if output.status.success() || output.status.code() == Some(124) {
-                stdout_output(output.stdout)
+            // Print stdout when a tool terminates with zero as exit status.
+            // Print stdout + stderr when a tool terminates after a timeout.
+            // Print stderr when a tool terminates with any other kind of error.
+            if output.status.success() {
+                stdout_output(&output.stdout)
+            } else if output.status.code() == Some(124) {
+                stdout_stderr_output(&output.stdout, &output.stderr)
             } else {
-                stderr_output(output.stderr)
+                stderr_output(&output.stderr)
             };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());

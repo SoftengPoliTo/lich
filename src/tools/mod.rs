@@ -8,10 +8,12 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
+use std::fmt::Write;
 use std::fs::read_to_string;
 use std::io::Error;
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
+use std::str::from_utf8;
 
 use minijinja::Environment;
 
@@ -206,14 +208,28 @@ fn stdout_result() -> &'static str {
     "[Success 😁]"
 }
 
-fn stdout_output(message: Vec<u8>) -> (String, &'static str) {
-    let output = String::from_utf8(message).unwrap();
+fn stdout_output(message: &[u8]) -> (String, &'static str) {
+    let output = from_utf8(message).unwrap().trim();
     let result = stdout_result();
-    (output.trim().into(), result)
+    (output.into(), result)
 }
 
-fn stderr_output(message: Vec<u8>) -> (String, &'static str) {
-    let output = String::from_utf8(message).unwrap();
+fn stderr_output(message: &[u8]) -> (String, &'static str) {
+    let output = from_utf8(message).unwrap().trim();
     let result = "[Error 🤕]";
-    (output.trim().into(), result)
+    (output.into(), result)
+}
+
+fn stdout_stderr_output(stdout_message: &[u8], stderr_message: &[u8]) -> (String, &'static str) {
+    let stdout_output = from_utf8(stdout_message).unwrap().trim();
+    let stderr_output = from_utf8(stderr_message).unwrap().trim();
+
+    let mut output = String::new();
+
+    // Add a newline independently of the operating system in use.
+    writeln!(output, "{stdout_output}").unwrap();
+
+    output.push_str(stderr_output);
+
+    (output, stdout_result())
 }
