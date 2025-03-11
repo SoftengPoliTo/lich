@@ -221,7 +221,7 @@ fn stderr_output(message: &[u8]) -> (String, &'static str) {
 }
 
 fn stdout_stderr_output(stdout_message: &[u8], stderr_message: &[u8]) -> (String, &'static str) {
-    let stdout_output = from_utf8(stdout_message).unwrap().trim();
+    let stdout_output = from_utf8(stdout_message).unwrap().trim_start();
     let stderr_output = from_utf8(stderr_message).unwrap().trim();
 
     let mut output = String::new();
