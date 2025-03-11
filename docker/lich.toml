@@ -1,14 +1,14 @@
 # Binary path.
 #
 # It must be an existing file path. Every other path type will be rejected.
-binary-path = "./input/light-firmware-debug"
+binary-path = "light-firmware-debug"
 # Report path.
 #
 # It must be a directory path. The final report and every tool report will be
 # saved in this directory.
-report-path = "./lich"
-# Set the root for the system in use.
-root = "sudo"
+report-path = "lich"
+# Enable docker configuration.
+docker = true
 
 # All input arguments for the binary in analysis.
 [binary]

@@ -8,6 +8,12 @@ use toml::from_str;
 use crate::output::ReportFormat;
 use crate::tools::{Args, PerfConfig, PowerstatConfig, PowertopConfig, ValgrindConfig};
 
+const DOCKER_VOLUME_DIRECTORY: &str = "/lich";
+
+fn create_docker_path(path: PathBuf) -> PathBuf {
+    Path::new(DOCKER_VOLUME_DIRECTORY).join(path)
+}
+
 pub(crate) fn always_true() -> bool {
     true
 }
@@ -35,6 +41,8 @@ pub(crate) struct Configurator {
     #[serde(default)]
     pub(crate) root: String,
     #[serde(default)]
+    pub(crate) docker: bool,
+    #[serde(default)]
     pub(crate) format: ReportFormat,
     #[serde(default)]
     pub(crate) binary: BinaryConfig,
@@ -52,6 +60,13 @@ impl Configurator {
     pub(crate) fn read(configuration_path: &Path) -> Self {
         let contents = read_to_string(configuration_path).unwrap();
         let mut configuration: Self = from_str(&contents).unwrap();
+
+        // If a docker run is requested, add the `/lich` directory to binary
+        // and report path.
+        if configuration.docker {
+            configuration.binary_path = create_docker_path(configuration.binary_path);
+            configuration.report_path = create_docker_path(configuration.report_path);
+        }
 
         #[cfg(feature = "tracing")]
         {
