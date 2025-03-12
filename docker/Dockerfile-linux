@@ -1,0 +1,50 @@
+# Dockerfile usage
+#
+# The input directory must contain both the binary and the `lich.toml`
+# configuration file, and it must be passed as volume to the `lich` directory
+# of the docker container.
+#
+# Build image:
+#
+# docker build -t lich-linux -f docker/Dockerfile-linux .
+#
+# Run container:
+#
+# docker run -it --rm --privileged \
+#            -v /path/on/host/to/your/input/directory:/lich lich-linux
+
+# Use Rust latest stable version for `debian slim-bookworm` operating system.
+FROM rust:slim-bookworm
+
+# Set `/app` as working directory
+WORKDIR /app
+
+# Copy all files contained in the `lich` directory into this Docker image's
+# working directory.
+COPY . /app
+
+# Install perf, powerstat, powertop, and valgrind.
+#
+# Clean packages cache to free space.
+RUN apt-get update && apt-get install -y \
+    linux-perf \
+    powerstat \
+    powertop \
+    valgrind \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Remove all useless files contained in the working directory.
+RUN rm -rf LICENSE-MIT README.md docker/ input/alpine
+
+# Clean up old cargo builds
+RUN cargo clean
+
+# Build `lich` tool with release profile and `tracing` feature.
+RUN cargo build --release --features tracing
+
+# Specify a volume for produced data.
+VOLUME /lich
+
+# Command to run `lich` with the data contained in the `/lich` directory.
+CMD ["cargo", "run", "--features", "tracing", "--release", "--", "-c", "/lich"]
