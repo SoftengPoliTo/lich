@@ -4,12 +4,12 @@ use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{always_true, Configurator};
-use crate::output::{create_report_path, Output, ToolOutput};
+use crate::configurator::{Configurator, always_true};
+use crate::output::{Output, ToolOutput, create_report_path};
 
 use super::{
-    check_tool_existence, run_tool, run_tool_with_timeout, stderr_output, stdout_output,
-    stdout_stderr_output, Args, ToolCommands,
+    Args, ToolCommands, check_tool_existence, run_tool, run_tool_with_timeout, stderr_output,
+    stdout_stderr_output,
 };
 
 const TOOL_NAME: &str = "valgrind";
@@ -73,12 +73,17 @@ impl<'a> ToolCommands<'a> for Valgrind<'a> {
         };
 
         let (output, result) =
-            // Print stdout when a tool terminates with zero as exit status.
-            // Print stdout + stderr when a tool terminates after a timeout.
-            // Print stderr when a tool terminates with any other kind of error.
-            if output.status.success() {
-                stdout_output(&output.stdout)
-            } else if output.status.code() == Some(124) {
+            // Print stdout + stderr when a tool terminates with zero as exit
+            // status or when a timeout expires (exit status 124) or when the
+            // tool was terminated by another process (exit status 143) or when
+            // the process is gracefully terminated by SIGTERM (exit status 15).
+            //
+            // Print only stderr when a tool terminates with any other
+            // kind of error.
+            if output.status.success()
+                || output.status.code() == Some(124)
+                || output.status.code() == Some(143)
+                || output.status.code() == Some(15) {
                 stdout_stderr_output(&output.stdout, &output.stderr)
             } else {
                 stderr_output(&output.stderr)
