@@ -8,7 +8,6 @@ pub(crate) use powerstat::{Powerstat, PowerstatConfig};
 pub(crate) use powertop::{Powertop, PowertopConfig};
 pub(crate) use valgrind::{Valgrind, ValgrindConfig};
 
-use std::fmt::Write;
 use std::fs::read_to_string;
 use std::io::Error;
 use std::path::Path;
@@ -19,6 +18,11 @@ use minijinja::Environment;
 
 use crate::configurator::Configurator;
 use crate::output::ToolOutput;
+
+#[cfg(not(windows))]
+const LINE_ENDING: &str = "\n";
+#[cfg(windows)]
+const LINE_ENDING: &str = "\r\n";
 
 pub(crate) trait Args {
     fn args(&self) -> &[String];
@@ -204,32 +208,40 @@ fn run_tool_with_timeout(
     )
 }
 
+fn remove_trailing_whitespaces(message: &str) -> String {
+    message
+        .lines()
+        .map(str::trim_end)
+        .collect::<Vec<_>>()
+        .join(LINE_ENDING)
+}
+
+fn format_output(message: &[u8]) -> String {
+    remove_trailing_whitespaces(from_utf8(message).unwrap().trim())
+}
+
 fn stdout_result() -> &'static str {
     "[Success 😁]"
 }
 
 fn stdout_output(message: &[u8]) -> (String, &'static str) {
-    let output = from_utf8(message).unwrap().trim();
+    let output = format_output(message);
     let result = stdout_result();
-    (output.into(), result)
+    (output, result)
 }
 
 fn stderr_output(message: &[u8]) -> (String, &'static str) {
-    let output = from_utf8(message).unwrap().trim();
+    let output = format_output(message);
     let result = "[Error 🤕]";
-    (output.into(), result)
+    (output, result)
 }
 
 fn stdout_stderr_output(stdout_message: &[u8], stderr_message: &[u8]) -> (String, &'static str) {
-    let stdout_output = from_utf8(stdout_message).unwrap().trim_start();
-    let stderr_output = from_utf8(stderr_message).unwrap().trim();
+    let stdout_output = format_output(stdout_message);
+    let stderr_output = format_output(stderr_message);
 
-    let mut output = String::new();
-
-    // Add a newline independently of the operating system in use.
-    writeln!(output, "{stdout_output}").unwrap();
-
-    output.push_str(stderr_output);
+    // Add a white line independently of the operating system in use.
+    let output = format!("{stdout_output}{LINE_ENDING}{LINE_ENDING}{stderr_output}");
 
     (output, stdout_result())
 }
