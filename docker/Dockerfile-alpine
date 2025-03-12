@@ -57,4 +57,4 @@ RUN cargo build --release --features tracing
 VOLUME /lich
 
 # Command to run `lich` with the data contained in the `/lich` directory.
-CMD cargo run --features tracing --release -- -c /lich
+CMD ["cargo", "run", "--features", "tracing", "--release", "--", "-c", "/lich"]
