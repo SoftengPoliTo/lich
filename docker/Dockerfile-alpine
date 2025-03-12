@@ -13,7 +13,7 @@
 # docker run -it --rm --privileged \
 #            -v /path/on/host/to/your/input/directory:/lich lich-alpine
 
-# Use latest stable version for `alpine` operating system.
+# Use Rust latest stable version for `alpine` operating system.
 #
 # Alpine is a small and essential operating system.
 FROM rust:alpine
