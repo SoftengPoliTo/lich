@@ -4,11 +4,11 @@ use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{Configurator, always_true};
-use crate::output::{Output, ToolOutput, create_report_path};
+use crate::configurator::{always_true, Configurator};
+use crate::output::{create_report_path, Output, ToolOutput};
 
 use super::{
-    Args, ToolCommands, check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool,
+    check_tool_existence, run_tool, stderr_output, stdout_output, sudo_run_tool, Args, ToolCommands,
 };
 
 const TOOL_NAME: &str = "powerstat";
@@ -71,7 +71,7 @@ impl<'a> ToolCommands<'a> for Powerstat<'a> {
         let (output, result) = if output.status.success() {
             stdout_output(&output.stdout)
         } else {
-            stderr_output(&output.stderr)
+            stderr_output(&output.stdout)
         };
 
         let report_path = create_report_path(TOOL_NAME, config.format.ext());
