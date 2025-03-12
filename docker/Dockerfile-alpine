@@ -52,6 +52,8 @@ RUN cargo clean
 
 # Build `lich` tool with release profile and `tracing` feature.
 RUN cargo build --release --features tracing
+
+# Specify a volume for produced data.
 VOLUME /lich
 
 # Command to run `lich` with the data contained in the `/lich` directory.
