@@ -1,7 +1,7 @@
 use std::fs::write;
 use std::path::Path;
 
-use minijinja::{context, Environment};
+use minijinja::{Environment, context};
 
 use serde::{Deserialize, Serialize};
 

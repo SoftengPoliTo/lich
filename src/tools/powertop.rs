@@ -6,12 +6,12 @@ use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{always_true, Configurator};
-use crate::output::{create_report_path, Output, ToolOutput};
+use crate::configurator::{Configurator, always_true};
+use crate::output::{Output, ToolOutput, create_report_path};
 
 use super::{
-    check_tool_existence, create_binary_input, read_file_to_string, run_tool_with_input,
-    stderr_output, stdout_result, sudo_run_tool_with_input, Args, ToolCommands,
+    Args, ToolCommands, check_tool_existence, create_binary_input, read_file_to_string,
+    run_tool_with_input, stderr_output, stdout_result, sudo_run_tool_with_input,
 };
 
 const TOOL_NAME: &str = "powertop";

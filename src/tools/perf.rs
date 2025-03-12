@@ -4,12 +4,12 @@ use minijinja::Environment;
 
 use serde::Deserialize;
 
-use crate::configurator::{always_true, Configurator};
-use crate::output::{create_report_path, Output, ToolOutput};
+use crate::configurator::{Configurator, always_true};
+use crate::output::{Output, ToolOutput, create_report_path};
 
 use super::{
-    check_tool_existence, run_tool, stderr_output, stdout_stderr_output, sudo_run_tool, Args,
-    ToolCommands,
+    Args, ToolCommands, check_tool_existence, run_tool, stderr_output, stdout_stderr_output,
+    sudo_run_tool,
 };
 
 const TOOL_NAME: &str = "perf";
