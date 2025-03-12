@@ -22,7 +22,7 @@ enable = true
 # Valgrind input arguments.
 args = ["--leak-check=full", "--show-leak-kinds=all", "--track-origins=yes", "--error-exitcode=1"]
 # A timeout to stop binary execution. This parameter is useful when a server is
-# being tested.. When the value is 0, the timeout is disabled.
+# being tested. When the value is 0, the timeout is disabled.
 # The basic measurement unit for this option is second [s].
 timeout = 10
 
