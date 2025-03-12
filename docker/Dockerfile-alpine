@@ -47,10 +47,11 @@ RUN apk update && apk add --no-cache \
 # Remove all useless files contained in the working directory.
 RUN rm -rf LICENSE-MIT README.md docker/ input/linux
 
-# Build `lich` tool with release profile.
-RUN cargo build --release
+# Clean up old cargo builds
+RUN cargo clean
 
-# Create a volume for the data.
+# Build `lich` tool with release profile and `tracing` feature.
+RUN cargo build --release --features tracing
 VOLUME /lich
 
 # Command to run `lich` with the data contained in the `/lich` directory.
