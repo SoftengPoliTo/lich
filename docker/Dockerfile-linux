@@ -10,8 +10,13 @@
 #
 # Run container:
 #
-# docker run -it --rm --privileged \
+# docker run --rm --privileged \
 #            -v /path/on/host/to/your/input/directory:/lich lich-linux
+#
+# The `--privileged` option disables all security checks which prevent the
+# necessary system calls for estimating firmware energy consumption. If the
+# underlying processor instructions are not present or unavailable, this option
+# is not necessary, hence remove it from the `docker run` command.
 
 # Use Rust latest stable version for `debian slim-bookworm` operating system.
 FROM rust:slim-bookworm
