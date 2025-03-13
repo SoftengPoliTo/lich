@@ -45,7 +45,7 @@ fn create_binary_input(binary_path: &Path, binary_arguments: &[String]) -> Strin
 }
 
 fn check_tool_existence(tool_name: &str) -> Result<Output, Error> {
-    Command::new(tool_name).arg("-v").output()
+    Command::new(tool_name).arg("--version").output()
 }
 
 #[cfg(feature = "tracing")]
