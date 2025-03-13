@@ -1,0 +1,35 @@
+name: perf
+
+on:
+  push:
+    branches:
+      - perf
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install perf
+      run: |
+        sudo apt-get update && sudo apt-get install linux-tools-common \
+        linux-tools-$(uname -r) \
+        linux-modules-extra-$(uname -r) \
+        cpufrequtils pm-utils
+
+    - name: Update kernel
+      run: sudo update-initramfs -c -k $(uname -r)
+
+    - name: Cpu Info
+      run: cat /proc/cpuinfo
+
+    - name: Perf info
+      run: cat /boot/config-$(uname -r) | grep PERF_EVENTS
+
+    - name: Perf list
+      run: sudo perf list
+
+    - name: Run perf
+      run: sudo perf stat --timeout 10000 -ae power/energy-cores/,power/energy-pkg/,power/energy-psys/
