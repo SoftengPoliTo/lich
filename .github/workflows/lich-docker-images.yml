@@ -37,6 +37,34 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Print underlying CPU data
+      run: |
+        cat /proc/cpuinfo
+
+    - name: Disable tools not executable on ci
+      run: |
+        pip install toml
+        python -c """
+        import toml
+
+        config = toml.load('input/${{ matrix.image}}/lich.toml')
+
+        # Perf cannot be executed on CI because instructions to detect energy
+        # consumption are not enabled for the underlying AMD CPU.
+        config['perf']['enable'] = False
+
+        # Powerstat uses intel_rapl to detect energy consumption, but the 
+        # underlying CPU is not Intel, but AMD.
+        config['powerstat']['enable'] = False
+
+        with open('input/${{ matrix.image }}/lich.toml', 'w') as f:
+          toml.dump(config, f)
+        """
+
+    - name: Show new configuration
+      run: |
+        cat input/${{ matrix.image }}/lich.toml
+
     - name: Login to GitHub container registry (ghcr.io)
       uses: docker/login-action@v3
       with:
@@ -67,15 +95,6 @@ jobs:
       run: |
         cat input/${{ matrix.image }}/lich/valgrind.md
 
-    - name: Print perf output
-      run: |
-        cat input/${{ matrix.image }}/lich/perf.md
-
-    - name: Print powerstat output
-      if: matrix.image == 'alpine'
-      run: |
-        cat input/${{ matrix.image }}/lich/powerstat.md
-
     - name: Print powertop output
       run: |
         cat input/${{ matrix.image }}/lich/powertop.md
@@ -98,5 +117,3 @@ jobs:
         tags: |
           ghcr.io/softengpolito/lich-${{ matrix.image }}-${{ matrix.arch }}:latest
           ghcr.io/softengpolito/lich-${{ matrix.image }}-${{ matrix.arch }}:${{ steps.tag.outputs.value }}
-
-
