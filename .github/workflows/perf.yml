@@ -15,12 +15,12 @@ jobs:
     - name: Install perf
       run: |
         sudo apt-get update && sudo apt-get install linux-tools-common \
-        linux-tools-$(uname -r) \
-        linux-modules-extra-$(uname -r) \
-        cpufrequtils pm-utils
 
-    - name: Update kernel
-      run: sudo update-initramfs -c -k $(uname -r)
+    - name: Enable perf event paranoid flag
+      run: sudo sysctl kernel.perf_event_paranoid=1
+
+    - name: Set Kernel KPTR  Restriction
+      run: sudo sysctl kernel.kptr_restrict=0
 
     - name: Cpu Info
       run: cat /proc/cpuinfo
