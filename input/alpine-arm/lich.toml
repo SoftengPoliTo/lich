@@ -38,8 +38,7 @@ args = ["stat", "--timeout", "10000", "-ae", "power/energy-cores/,power/energy-p
 # Optional powerstat arguments.
 [powerstat]
 # Run powerstat tool. If `false`, the tool does not run.
-# FIXME: Disable powerstat because it does not work on `debian bookworm`
-enable = false
+enable = true
 # Powerstat input arguments.
 #
 # Take a sample each second and run for 60 seconds (1 minute). Use Intel RAPL
