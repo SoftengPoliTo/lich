@@ -59,7 +59,7 @@ jobs:
     - name: Create docker input
       run: |
         mkdir -p input/${{ matrix.image }}
-        cp config/lich-docker-ci-${{ matrix.image }}.toml input/${{ matrix.image }}/lich.toml
+        cp configs/lich-docker-ci-${{ matrix.image }}.toml input/${{ matrix.image }}/lich.toml
         mv light-firmware/target/${{ matrix.target }}/debug/light-firmware input/${{ matrix.image }}
 
     - name: Disable tools not executable on ci

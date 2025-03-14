@@ -1,7 +1,7 @@
 # Binary path.
 #
 # It must be an existing file path. Every other path type will be rejected.
-binary-path = "light-firmware/target/debug/light"
+binary-path = "light-firmware/target/debug/light-firwmare"
 # Report path.
 #
 # It must be a directory path. The final report and every tool report will be
