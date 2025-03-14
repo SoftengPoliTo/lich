@@ -22,15 +22,19 @@ jobs:
          - arch: amd64
            runner: ubuntu-latest
            image: alpine
+           target: x86_64-unknown-linux-musl
          - arch: amd64
            runner: ubuntu-latest
            image: linux
+           target: x86_64-unknown-linux-gnu
          - arch: arm64
            runner: ubuntu-24.04-arm
            image: alpine
+           target: aarch64-unknown-linux-musl
          - arch: arm64
            runner: ubuntu-24.04-arm
            image: linux
+           target: aarch64-unknown-linux-gnu
 
     runs-on: ${{ matrix.runner }}
 
@@ -45,17 +49,18 @@ jobs:
       uses: dtolnay/rust-toolchain@master
       with:
         toolchain: stable
+        target: ${{ matrix.target }}
 
     - name: Compile firmware
       working-directory: ${{ github.workspace }}/light-firmware
       run: |
-        cargo build
+        cargo build --target ${{ matrix.target }}
 
     - name: Create docker input
       run: |
         mkdir -p input/${{ matrix.image }}
         cp config/lich-docker-ci-${{ matrix.image }}.toml input/${{ matrix.image }}/lich.toml
-        mv light-firmware/target/debug/light-firmware input/${{ matrix.image }}
+        mv light-firmware/target/${{ matrix.target }}/debug/light-firmware input/${{ matrix.image }}
 
     - name: Disable tools not executable on ci
       run: |
