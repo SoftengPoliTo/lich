@@ -1,6 +1,7 @@
-# Ascot Light Firwmare
+# Light Firwmare
 
-An `Ascot` light firmware implemented with the `ascot-os` crate.
+A simple light firmware implemented with the
+[ascot](https://github.com/SoftengPoliTo/ascot) framework.
 
 ## Building
 
