@@ -22,19 +22,15 @@ jobs:
          - arch: amd64
            runner: ubuntu-latest
            image: alpine
-           directory: alpine-amd
          - arch: amd64
            runner: ubuntu-latest
            image: linux
-           directory: linux-amd
          - arch: arm64
            runner: ubuntu-24.04-arm
            image: alpine
-           directory: alpine-arm
          - arch: arm64
            runner: ubuntu-24.04-arm
            image: linux
-           directory: linux-arm
 
     runs-on: ${{ matrix.runner }}
 
@@ -45,13 +41,29 @@ jobs:
       run: |
         cat /proc/cpuinfo
 
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: stable
+
+    - name: Compile firmware
+      working-directory: ${{ github.workspace }}/light-firmware
+      run: |
+        cargo build
+
+    - name: Create docker input
+      run: |
+        mkdir -p input/${{ matrix.image }}
+        cp config/lich-docker-ci-${{ matrix.image }}.toml input/${{ matrix.image }}/lich.toml
+        mv light-firmware/target/debug/light-firmware input/${{ matrix.image }}
+
     - name: Disable tools not executable on ci
       run: |
         pip install toml
         python -c """
         import toml
 
-        config = toml.load('input/${{ matrix.directory}}/lich.toml')
+        config = toml.load('input/${{ matrix.image}}/lich.toml')
 
         # Perf cannot be executed on CI because instructions to detect energy
         # consumption are not enabled for the underlying AMD CPU.
@@ -61,13 +73,13 @@ jobs:
         # underlying CPU is not Intel, but AMD.
         config['powerstat']['enable'] = False
 
-        with open('input/${{ matrix.directory }}/lich.toml', 'w') as f:
+        with open('input/${{ matrix.image }}/lich.toml', 'w') as f:
           toml.dump(config, f)
         """
 
     - name: Show new configuration
       run: |
-        cat input/${{ matrix.directory }}/lich.toml
+        cat input/${{ matrix.image }}/lich.toml
 
     - name: Login to GitHub container registry (ghcr.io)
       uses: docker/login-action@v3
@@ -92,16 +104,16 @@ jobs:
     - name: Test
       run: |
         docker run --rm --privileged \
-               -v ./input/${{ matrix.directory }}:/lich \
+               -v ./input/${{ matrix.image }}:/lich \
                ghcr.io/softengpolito/lich-${{ matrix.image }}-${{ matrix.arch }}:test
 
     - name: Print valgrind output
       run: |
-        cat input/${{ matrix.directory }}/lich/valgrind.md
+        cat input/${{ matrix.image }}/lich/valgrind.md
 
     - name: Print powertop output
       run: |
-        cat input/${{ matrix.directory }}/lich/powertop.md
+        cat input/${{ matrix.image }}/lich/powertop.md
 
     - name: Get tag
       if: startsWith(github.ref, 'refs/tags/v')
